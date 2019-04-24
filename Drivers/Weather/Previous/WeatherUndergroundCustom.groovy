@@ -16,9 +16,10 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *  Last Update 08/04/2019
+ *  Last Update 16/04/2019
  *
- *
+ *  
+ *  V4.2.0 - Added 'currentIcon' attribute and ability to 'size' icons for dashboard display
  *  V4.1.0 - Made icons optional
  *  V4.0.0 - Reformatted and recoded to allow use with new WU api
  *  V3.1.0 - Added Icons for current and forecast weather for use with new tile app
@@ -73,6 +74,7 @@ metadata {
   //      attribute "localSunset", "string"
         attribute "weather", "string"
         attribute "feelsLike", "number"
+		attribute "currentIcon", "string"
         attribute "forecastIcon", "string"
 		attribute "city", "string"
         attribute "state", "string"
@@ -91,6 +93,7 @@ metadata {
         attribute "precip_rate", "number"
         attribute "precip_today", "number"
         attribute "wind", "number"
+		attribute "windPhrase", "string"
         attribute "UV", "number"
        	attribute "UVHarm", "string"
         attribute "pollsSinceReset", "number"
@@ -126,7 +129,10 @@ metadata {
             input "pollLocation", "text", required: true, title: "Station ID"
 			input "unitFormat", "enum", required: true, title: "Unit Format",  options: ["Imperial", "Metric", "UK Hybrid"]
 			input "useIcons", "bool", required: false, title: "Use externally hosted icons (Optional)", defaultValue: false
-			if(useIcons){input "iconURL1", "text", required: true, title: "Icon Base URL"}
+			if(useIcons){
+			input "iconURL1", "text", required: true, title: "Icon Base URL"
+			input "iconHeight1", "text", required: true, title: "Icon Height", defaultValue: 25
+			input "iconWidth1", "text", required: true, title: "Icon Width", defaultValue: 25}			
             input "pollIntervalLimit", "number", title: "Poll Interval Limit:", required: true, defaultValue: 1
             input "autoPoll", "bool", required: false, title: "Enable Auto Poll"
             input "pollInterval", "enum", title: "Auto Poll Interval:", required: false, defaultValue: "5 Minutes", options: ["5 Minutes", "10 Minutes", "15 Minutes", "30 Minutes", "1 Hour", "3 Hours"]
@@ -180,15 +186,15 @@ def poll()
 def formatUnit(){
 	if(unitFormat == "Imperial"){
 		state.unit = "e"
-		log.warn "state.unit = $state.unit"
+		log.info "state.unit = $state.unit"
 	}
 	if(unitFormat == "Metric"){
 		state.unit = "m"
-		log.warn "state.unit = $state.unit"
+		log.info "state.unit = $state.unit"
 	}
 	if(unitFormat == "UK Hybrid"){
 		state.unit = "h"
-		log.warn "state.unit = $state.unit"
+		log.info "state.unit = $state.unit"
 	}
 	
 	
@@ -245,8 +251,7 @@ def poll1(){
 			
             sendEvent(name: "observation_time", value: resp1.data.observations.obsTimeLocal[0], isStateChange: true)
             sendEvent(name: "wind_degree", value: resp1.data.observations.winddir[0], isStateChange: true)			
-	//		sendEvent(name: "wind_dir", value: resp1.data.observations.winddir[0], isStateChange: true) ////////////////////  Need calculations for wind_dir to tet conversion 
-			state.latt1 = (resp1.data.observations.lat[0])
+				state.latt1 = (resp1.data.observations.lat[0])
 			state.long1 = (resp1.data.observations.lon[0])
 			sendEvent(name: "latitude", value: state.latt1 ,isStateChange: true)
 			sendEvent(name: "longitude", value: state.long1,isStateChange: true)	
@@ -327,25 +332,29 @@ def poll2(){
 			sendEvent(name: "rainTomorrow", value: resp2.data.daypart[0].qpf[0], isStateChange: true)
 			
 			sendEvent(name: "currentConditions", value: resp2.data.narrative[0], isStateChange: true)
-			sendEvent(name: "forecastConditions", value: resp2.data.daypart[0].narrative[0], isStateChange: true)
+			sendEvent(name: "forecastConditions", value: resp2.data.narrative[1], isStateChange: true)
 			sendEvent(name: "weather", value: resp2.data.daypart[0].wxPhraseLong[0], isStateChange: true)
-			sendEvent(name: "wind_dir", value: resp2.data.daypart[0].windDirectionCardinal[0], isStateChange: true) 
+			sendEvent(name: "wind_dir", value: resp2.data.daypart[0].windDirectionCardinal[0], isStateChange: true)
+			sendEvent(name: "windPhrase", value: resp2.data.daypart[0].windPhrase[0], isStateChange: true)
+
+			
 			sendEvent(name: "forecastHigh", value: resp2.data.temperatureMax[0], isStateChange: true)
 			sendEvent(name: "forecastLow", value: resp2.data.temperatureMin[0], isStateChange: true)
 			sendEvent(name: "moonPhase", value: resp2.data.moonPhase[0], isStateChange: true)
 			sendEvent(name: "UVHarm", value: resp2.data.daypart[0].uvDescription[0], isStateChange: true) 
 			
-			def dayOrNight = (resp2.data.daypart[0].dayOrNight[0])
-//			log.warn "day/night is $dayOrNight"
+			state.dayOrNight = (resp2.data.daypart[0].dayOrNight[0])
+	//		 log.warn "day/night is $state.dayOrNight"
 			if(useIcons){
-			state.iconCode = (resp2.data.daypart[0].iconCode[0])
-			state.iconURL = iconURL1 +state.iconCode +".png"
-			state.icon = "<img src=" +iconURL1 +state.iconCode +".png" +">"
-			sendEvent(name: "forecastIcon", value: state.icon, isStateChange: true) 
-			}
-				
-//			sendEvent(name: "localSunrise", value: resp2.data.sunriseTimeLocal[0] ,isStateChange: true)
-//			sendEvent(name: "localSunset", value: resp2.data.sunsetTimeLocal[0] ,isStateChange: true)       
+			state.iconCode1 = (resp2.data.daypart[0].iconCode[0])
+			state.iconCode2 = (resp2.data.daypart[0].iconCode[2])	
+							
+			
+			state.icon1 = "<img src='" +iconURL1 +state.iconCode1 +".png" +"' width='" +iconWidth1 +"' height='" +iconHeight1 +"'>"
+			state.icon2 = "<img src='" +iconURL1 +state.iconCode2 +".png" +"' width='" +iconWidth1 +"' height='" +iconHeight1 +"'>"
+			sendEvent(name: "currentIcon", value: state.icon1, isStateChange: true) 
+			sendEvent(name: "forecastIcon", value: state.icon2, isStateChange: true) 
+			} 
         	state.lastPoll = now()     
 
         } 
@@ -443,7 +452,7 @@ def updateCheck(){
 }
 
 def setVersion(){
-    state.version = "4.1.0"
+    state.version = "4.2.0"
     state.InternalName = "WUWeatherDriver"
    	state.CobraAppCheck = "customwu.json"
     sendEvent(name: "DriverAuthor", value: "Cobra", isStateChange: true)
