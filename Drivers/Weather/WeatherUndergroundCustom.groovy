@@ -256,7 +256,7 @@ def poll1(){
 			sendEvent(name: "humidity", value: resp1.data.observations.humidity[0], isStateChange: true)
             sendEvent(name: "observation_time", value: resp1.data.observations.obsTimeLocal[0], isStateChange: true)
             sendEvent(name: "wind_degree", value: resp1.data.observations.winddir[0], isStateChange: true)			
-				state.latt1 = (resp1.data.observations.lat[0])
+			state.latt1 = (resp1.data.observations.lat[0])
 			state.long1 = (resp1.data.observations.lon[0])
 			sendEvent(name: "latitude", value: state.latt1 ,isStateChange: true)
 			sendEvent(name: "longitude", value: state.long1,isStateChange: true)	
@@ -366,12 +366,16 @@ def poll2(){
 			sendEvent(name: "UVHarm", value: resp2.data.daypart[0].uvDescription[0], isStateChange: true) 
 			
 			state.dayOrNight = (resp2.data.daypart[0].dayOrNight[0])
-	//		 log.warn "day/night is $state.dayOrNight"
+			 log.warn "day/night is $state.dayOrNight"
 			if(useIcons){
+				if(state.dayOrNight == "D" || state.dayOrNight == null){	
 			state.iconCode1 = (resp2.data.daypart[0].iconCode[0])
 			state.iconCode2 = (resp2.data.daypart[0].iconCode[2])	
-							
-			
+				}				
+			if(state.dayOrNight == "N"){	
+			state.iconCode1 = (resp2.data.daypart[0].iconCode[2])
+			state.iconCode2 = (resp2.data.daypart[0].iconCode[3])	
+				}			
 			state.icon1 = "<img src='" +iconURL1 +state.iconCode1 +".png" +"' width='" +iconWidth1 +"' height='" +iconHeight1 +"'>"
 			state.icon2 = "<img src='" +iconURL1 +state.iconCode2 +".png" +"' width='" +iconWidth1 +"' height='" +iconHeight1 +"'>"
 			sendEvent(name: "currentIcon", value: state.icon1, isStateChange: true) 
