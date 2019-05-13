@@ -33,40 +33,28 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update 13/05/2019
+ *  Last Update 08/01/2019
  *
  *
  *
  *  
  *
- *  V1.2.0 - added ActiveDevices as an attribute (data from new parent app) & debug "playTextAndRestore"
+ *
  *  V1.0.0 - POC (Initial Release)
  */
 
 
 metadata {
 	definition (name: "ProxySpeechPlayer", namespace: "Cobra", author: "Andrew Parker") {
-		
-		
-        capability "Music Player"
+		capability	"Music Player"
 		capability "Speech Synthesis"
-		capability "Notification"
-		
-		
-		command "InputDevice", ["string"]
 		command "playTextAndRestore",["string"]
-		command "setVolume", ["number"]
-	 	command "activeDevices", ["string"]
-		attribute "deviceNotification", "string"
-		attribute "speak", "string"
-		attribute "level", "number"
-		attribute "volume", "number"
 		attribute "playTextAndRestore", "string"
 		attribute  " ", "string"
+//		attribute "DriverAuthor", "string"
 		attribute "DriverVersion", "string"
         attribute "DriverStatus", "string"
         attribute "DriverUpdate", "string" 
-		attribute "ActiveDevices", "string"
 	}
 preferences() {
     
@@ -92,40 +80,34 @@ def initialize() {
 
 }
 
-def activeDevices(lst){
-	def deviceList = lst
-	sendEvent(name: "ActiveDevices", value: deviceList, isStateChange: true)
+
+
+def parse(String description) {
+	LOGDEBUG( "Parsing '${description}'")
 }
 
 
-def playTextAndRestore(text, level = null){
-	LOGDEBUG( "ProxySpeechPlayer sending playTextAndRestore: ${text}")
-    sendEvent(name: "playTextAndRestore", value: text, isStateChange: true)    
+def playTextAndRestore(text){
+	LOGDEBUG( "VDevice sending ${text}")
+    sendEvent(name: "playTextAndRestore", value: text)    
 	
 }
 
 
 def speak(text){
-	LOGDEBUG("ProxySpeechPlayer sending speak: ${text}")
-    sendEvent(name: "speak", value: text, isStateChange: true)   
+	LOGDEBUG("VDevice sending ${text}")
+    sendEvent(name: "speak", value: text)    
 
 }
 
-def deviceNotification(text){
-	LOGDEBUG("ProxySpeechPlayer sending deviceNotification: ${text}")
-    sendEvent(name: "deviceNotification", value: text, isStateChange: true)   
 
-}
 
 def setLevel(level) {
-	LOGDEBUG( "ProxySpeechPlayer sending setLevel: ${level}")
-    sendEvent(name: "level", value: level, isStateChange: true)    
+	LOGDEBUG( "VDevice setLevel: ${level}")
+    sendEvent(name: "setLevel", value: level)    
 } 
 
-def setVolume(level) {
-	LOGDEBUG( "ProxySpeechPlayer sending setVolume: ${level}")
-    sendEvent(name: "volume", value: level, isStateChange: true)   
-} 
+
 
 
 
@@ -208,7 +190,7 @@ def updateCheck(){
 }
 
 def setVersion(){
-    state.version = "1.2.0"
+    state.version = "1.0.0"
     state.InternalName = "SpeakerCentralDriver"
    	state.CobraAppCheck = "speakercentraldriver.json"
     

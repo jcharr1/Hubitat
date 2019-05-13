@@ -2,12 +2,10 @@
  *  ****************  Speaker Central ****************
  *
  *  Design Usage:
- *  This app was designed to display/set an 'average' Illumination, Temperature, Humidity or Pressure from a group of devices. It can also be used to 'group' a number of Motion sensors together to act as one
+ *  This app was designed to use a special 'ProxySpeechPlayer' virtual device to enable/disable speakers around your home
  *
- *  This app was originally born from an idea by @bobgodbold and I thank him for that!
- *  @bobgodbold ported some of the original driver code from SmartThings before I adapted it to it's present form for use with this app
  *
- *  Copyright 2018 Andrew Parker
+ *  Copyright 2019 Andrew Parker
  *  
  *  This SmartApp is free!
  *  Donations to support development efforts are accepted via: 
@@ -35,11 +33,14 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 14/02/2019
+ *  Last Update: 13/05/2019
  *
  *  Changes:
  *
- *
+ *  V1.6.0 - Added 'Presence' as a trigger.
+ *  V1.5.0 - Added 'Notifier' for use with new Hubitat App
+ *  V1.4.0 - Added Echo Speaks selection
+ *  V1.3.0 - Moved virtual device to parent - You need to open each child and save again (after saving new parent).
  *  V1.2.0 - Added ability to NOT change volume
  *  V1.1.0 - Added 'Initialize before speech' on speech synth to reconnect 'lazy' GH devices
  *  (This removes error: java.lang.NullPointerException: Cannot invoke method launchApp() on null object (runQ) and reconnects device)
@@ -74,10 +75,10 @@ preferences {
 	preCheck()
 
 		
-		section("Proxy Device") {input "vDevice", "device.ProxySpeechPlayer", title: "Proxy Speaker Virtual Device"}
+//		section("Proxy Device") {input "vDevice", "device.ProxySpeechPlayer", title: "Proxy Speaker Virtual Device"}
 		
 	section("TTS Speakers") {	
-		input "typeSelect", "enum", required: true, title: "Please select output type", submitOnChange: true,  options: ["Music Player", "Speech Synth"] 
+		input "typeSelect", "enum", required: true, title: "Please select output type", submitOnChange: true,  options: [ "Music Player", "Notification", "Speech Synth", "Echo Speaks"] 
 		state.type = typeSelect 
 	}
 		
@@ -85,8 +86,9 @@ preferences {
 		section() {
 		
       	input "speaker1", "capability.musicPlayer", title: "Speaker(s)", multiple: true
-		input "volumeYesNo", "bool", title: "Send Volume before speaking", required: true, defaultValue: true, submitOnChange: true	
-		if(volumeYesNo == true){	
+		input "volumeYesNo", "bool", title: "Send Volume before speaking", required: true, defaultValue: false, submitOnChange: true	
+		if(volumeYesNo == true){
+		input "speakerSlave", "capability.musicPlayer", title: "Slave Speaker(s) (Volume Setting Only)", multiple: true	
 		input "volumeMode1", "bool", title: "Use a fixed volume for this device", required: true, defaultValue: false, submitOnChange: true
 		if(volumeMode1 == true){input "defaultVol", "number", title: "Fixed speaker Volume", description: "0-100%", defaultValue: "70",  required: true}
 			}	
@@ -104,15 +106,40 @@ preferences {
 		input "wakeUp1", "bool", title: "Send 'Initialize' before speech for sleepy Google Home devices (May add a second before speaking)", required: true, defaultValue: false
 //		input "mute1", "bool", title: "Remove wakup chime from Google home devices (May add a second before speaking)", required: true, defaultValue: false
 			
-		input "volumeYesNo", "bool", title: "Send Volume before speaking", required: true, defaultValue: true, submitOnChange: true	
-		if(volumeYesNo == true){	
+		input "volumeYesNo", "bool", title: "Send Volume before speaking", required: true, defaultValue: false, submitOnChange: true	
+		if(volumeYesNo == true){
+		input "speakerSlave", "capability.speechSynthesis", title: "Slave Speaker(s) (Volume Setting Only)", multiple: true	
 		input "volumeMode1", "bool", title: "Use a fixed volume for this device", required: true, defaultValue: false, submitOnChange: true
 		if(volumeMode1 == true){input "defaultVol", "number", title: "Fixed speaker Volume", description: "0-100%", defaultValue: "70",  required: true}	
 		}
 	  }
 	}
+		
+				if(state.type == "Echo Speaks"){
+		section() {
+		input "announce1", "bool", title: "Announce To All Echo Devices", defaultValue: false, submitOnChange: true}
+			if(announce1){
+					section() {input "speaker1", "capability.musicPlayer", title: "You must select an Echo Speaks device to announce from", multiple: false}
+//		input "volumeYesNo", "bool", title: "Send Volume before speaking", required: true, defaultValue: false, submitOnChange: true	
+   	
+						  
+    }
+					if(!announce1){section() {input "speaker1", "capability.musicPlayer", title: "Echo Speaks Device(s)", multiple: true	}	}
+}
+		
+				
+				if(state.type == "Notification"){
+		section() {
+	
+      	input "speaker1", "capability.notification", title: "Notification Devic(es)", multiple: true
+
+				
+    }
+}
+		
+		
 		section() {	
-		input "controlSelect", "enum", required: true, title: "Please select control type", submitOnChange: true,  options: ["Mode", "Motion Sensor", "Switch", "Time" ] 
+		input "controlSelect", "enum", required: true, title: "Please select control type", submitOnChange: true,  options: ["Presence", "Mode", "Motion Sensor", "Switch", "Time" ] 
 			// Possible future feature...    , "Contact Open"] 
 		}
 		if(controlSelect){
@@ -136,6 +163,13 @@ preferences {
 			 section() {input "newMode1", "mode", title: "Which Mode(s) do you want this speaker enabled for?", required: true, multiple: true} 
 			}
 			
+			if(controlSelect == "Presence"){
+			 section() {
+			input "presence1", "capability.presenceSensor", title: "Select Presence Sensor", required: true, multiple: true
+			 input "presenceAction1", "bool", title: "On = Allow action only when someone is 'Present'  <br>Off = Allow action only when someone is 'NOT Present'  ", required: true, defaultValue: false
+			 }
+				
+			}
 			
 			
 			
@@ -215,7 +249,7 @@ def initialize(){
 }
 def subscribeNow() {
 	unsubscribe()
-	subscribe(location, "systemStart", updated)
+	askParentForDevice()
 	if(enableSwitch1){subscribe(enableSwitch1, "switch", switchEnable1)}
 	if(enableSwitch2){subscribe(enableSwitch2, "switch", switchEnable2)}
 	if(enableSwitchMode == null){enableSwitchMode = true} // ????
@@ -226,12 +260,13 @@ def subscribeNow() {
     
   // App Specific subscriptions & settings below here   
 	if(controlSelect == "Mode"){subscribe(location, "mode", modeChangeHandler)}
-    subscribe(vDevice, "speak", speakHandler) 
-	subscribe(vDevice, "setLevel", volumeHandler)
-	
-	subscribe(vDevice, "playTextAndRestore", playTextHandler)
+//    subscribe(state.vDevice, "speak", speakHandler) 
+//	subscribe(state.vDevice, "setLevel", volumeHandler)
+//	subscribe(state.vDevice, "deviceNotification", notifyHandler)
+//	subscribe(state.vDevice, "playTextAndRestore", playTextHandler)
 	if(motion1){subscribe(motion1, "motion", motion1Handler)}
 	if(switch1){subscribe(switch1, "switch", switch1Handler)}
+	if(presence1){subscribe(presence1, "presence", presence1Handler)}
 	if(defaultVol == null){defaultVol = 70}
 	if(controlSelect == "Time"){
 	schedule(startTime,startNow)	
@@ -267,6 +302,11 @@ def firstMute(){
 	speaker1.unmute()
 	return
 }
+
+
+
+
+
 
 def  modeChangeHandler(evt){
 	LOGDEBUG("Mode change handler running")
@@ -343,6 +383,34 @@ def switch1Handler(evt){
 	
 }
 
+def presence1Handler(evt){
+	LOGDEBUG( "$presence1 = $evt.value")
+	if(evt.value == 'present' && presenceAction1 == true){
+		LOGDEBUG( "Enabling: $speaker1 (Available for TTS)")
+		state.speaker1 = true
+			
+	}
+	
+	if(evt.value == 'not present' && presenceAction1 == true){
+		LOGDEBUG( "Disabling: $speaker1 (No longer available for TTS)")
+		state.speaker1 = false
+		
+	}	
+	
+		if(evt.value == 'present' && presenceAction1 == false){
+		LOGDEBUG( "Enabling: $speaker1 (Available for TTS)")
+		state.speaker1 = false
+			
+	}
+	
+	if(evt.value == 'not present' && presenceAction1 == false){
+		LOGDEBUG( "Disabling: $speaker1 (No longer available for TTS)")
+		state.speaker1 = true
+		
+	}
+	
+}
+
 def motion1Handler(evt){
 	LOGDEBUG( "$motion1 = $evt.value")
 	state.motion1 = evt.value
@@ -365,22 +433,30 @@ def resetMotion1(){
 	}
 }
 
-
 	
 def speakSpeakerSelect(){	
 	checkAllow()
 	betweenTimes()
 	if(state.allAllow == true){
-	if(state.speaker1 == true){	
+	if(state.speaker1 == true){
+		sendActive()
 	if(wakeUp1 == true){wakeUp()}
 //	if(mute1 == true){firstMute()}
 //	if(mute1 == false || mute1 == null ){speaker1.unmute()}
-	if(volumeMode1 == true){volumeDefault()}		
+	if(volumeMode1 == true){volumeDefault()}
+		
+		if(announce1 == true){
+			LOGDEBUG("Speak Announce All")
+					 speaker1.playAnnouncementAll(state.msg)}
+		else{
+			
 	speaker1.speak(state.msg)
 	
 	LOGDEBUG( "$speaker1 is active")
-	}	
-	if(state.speaker1 == false || state.speaker1 == null){LOGWARN( "$speaker1 is not active")}	
+		}	}
+	if(state.speaker1 == false || state.speaker1 == null){
+		sendActive()
+		LOGWARN( "$speaker1 is not active")}	
 	}
 	
 }
@@ -389,30 +465,67 @@ def playSpeakerSelect(){
 	checkAllow()
 	betweenTimes()
 		if(state.allAllow == true){
-	if(state.speaker1 == true){	
-	if(volumeMode1 == true){volumeDefault()}		
+	if(state.speaker1 == true){
+		sendActive()
+	if(volumeMode1 == true){volumeDefault()}	
+		if(announce1 == true){
+			LOGDEBUG("Play Announce All")
+			speaker1.playAnnouncementAll(state.msg)}
+		else{
 	speaker1.playTextAndRestore(state.msg)
 	LOGDEBUG( "$speaker1 is active")
-	}	
-	if(state.speaker1 == false || state.speaker1 == null){LOGWARN( "$speaker1 is not active")}	
+		}	}
+	if(state.speaker1 == false || state.speaker1 == null){
+		sendActive()
+		LOGWARN( "$speaker1 is not active")}	
 	}
 }	
 
+def notifySpeakerSelect(){	
+	checkAllow()
+	betweenTimes()
+		if(state.allAllow == true){
+	if(state.speaker1 == true){
+		sendActive()
 
+	speaker1.deviceNotification(state.msg)
+	LOGDEBUG( "$speaker1 is active")
+		}	}
+	if(state.speaker1 == false || state.speaker1 == null){
+		sendActive()
+		LOGWARN( "$speaker1 is not active")	
+	}
+}	
 
 def playTextHandler(msgIn){
-	state.msg = msgIn.value.toString()
+	state.msg = msgIn //.value.toString()
 	LOGDEBUG( "playTextAndRestore - Text received: $state.msg")
-	playSpeakerSelect()
+	if(state.type == "Notification"){notifySpeakerSelect()}
+	else{playSpeakerSelect()}
 }
 
 
 
 def speakHandler(msgIn){
-	state.msg = msgIn.value.toString()
+	state.msg = msgIn //.value.toString()
 	LOGDEBUG( "Speak - Text received: $state.msg")
-	speakSpeakerSelect()	
+	if(state.type == "Notification"){notifySpeakerSelect()}
+	else{speakSpeakerSelect()}	
 }
+
+
+
+def notifyHandler(msgIn){
+	state.msg = msgIn //.value.toString()
+	LOGDEBUG( "Notify - Text received: $state.msg")
+	notifySpeakerSelect()	
+	
+	
+}
+
+
+
+
 
 def volumeHandler(volIn){
 	if(volumeYesNo == true){
@@ -421,11 +534,17 @@ def volumeHandler(volIn){
 
 	if(state.type == "Music Player"){
 		LOGDEBUG( "Volume received: $state.vol")
-		if(volumeMode1 != true){speaker1.setLevel(state.vol)}
+		if(volumeMode1 != true){
+			speaker1.setLevel(state.vol)
+		if(speakerSlave){speakerSlave.setLevel(state.vol)}	
+		}
 	}
 	if(state.type == "Speech Synth"){
 		LOGDEBUG( "Volume received: $state.vol")
-		if(volumeMode1 != true){speaker1.setVolume(state.vol)}
+		if(volumeMode1 != true){
+			speaker1.setVolume(state.vol)
+		if(speakerSlave){speakerSlave.setVolume(state.vol)}
+		}
 	}
   }
 }
@@ -436,18 +555,35 @@ def volumeDefault(){
 	LOGDEBUG( "Volume received: $vol")
 	
 	if(state.type == "Music Player"){
+		if(speakerSlave){speakerSlave.setLevel(vol)}	
 	speaker1.setLevel(vol)
 	}
 	if(state.type == "Speech Synth"){
 	speaker1.setVolume(vol)	 // Not all devices accept this setting so comment this out if there are problems with your device
+	if(speakerSlave){speakerSlave.setVolume(vol)}
 	}
   }
 }
 
 
+def sendActive(){
+//	log.warn " sendActive"
+	state.activeDevice = speaker1
+	if(state.speaker1 == true){parent.activeList(state.activeDevice, "active")}	
+	if(state.speaker1 == false || state.speaker1 == null){parent.activeList(state.activeDevice, "inactive")}	
+	
+}
 
 
-
+def askParentForDevice(){parent.askVDevice()}
+	
+def sendVdevice(inDevice){
+	state.vDevice = inDevice
+// log.warn "state.vDevice = $state.vDevice"
+	if(state.vDevice == null){log.warn "No virtual device configured in parent app"}
+	
+	
+}
 
 
 
@@ -767,7 +903,10 @@ def version(){
 	pauseOrNot()
 	logCheck()
 	resetBtnName()
-	schedule("0 0 9 ? * FRI *", updateCheck) //  Check for updates at 9am every Friday
+	def random = new Random()
+    Integer randomHour = random.nextInt(18-10) + 10
+    Integer randomDayOfWeek = random.nextInt(7-1) + 1 // 1 to 7
+    schedule("0 0 " + randomHour + " ? * " + randomDayOfWeek, updateCheck) 
 	checkButtons()
    
 }
@@ -988,11 +1127,12 @@ def cobra(){
 
     
 def setVersion(){
-		state.version = "1.2.0"	 
+		state.version = "1.6.0"	 
 		state.InternalName = "SpeakerCentralChild"
     	state.ExternalName = "Speaker Central Child"
 		state.preCheckMessage = "This app was designed to use a special 'ProxySpeechPlayer' virtual device to enable/disable speakers around your home"
     	state.CobraAppCheck = "speakercentral.json"
+		state.checkCron = "0 0 15 ? * FRI *"
 }
 
 
