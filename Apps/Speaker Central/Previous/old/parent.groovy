@@ -33,14 +33,11 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 13/05/2019
+ *  Last Update: 03/01/2019
  *
  *  Changes:
  *
- *
- *  V1.3.0 - Added switch to be able to use existing proxy device
- *  V1.2.0 - Added auto creation of & subscription to virtual device
- *  V1.1.0 - Moved vdevice to parent & Added 'active speakers' sent to driver
+
  *  V1.0.0 - POC
  *
  */
@@ -51,7 +48,7 @@ definition(
     name:"Speaker Central",
     namespace: "Cobra",
     author: "Andrew Parker",
-    description: "Parent App for Average All ChildApps ",
+    description: "Parent App for Speaker Central ChildApps ",
      
    parent: "Cobra:Cobra Apps",  // ******** Comment this out if not using the 'Cobra Apps' container  ***************
     
@@ -71,23 +68,12 @@ preferences {page name: "mainPage", title: "", install: true, uninstall: true}
 def installed() {initialize()}
 def updated() {initialize()}
 def initialize() {
-	unsubscribe()
-	if(useOld == false){addDevices()}
     version()
     log.debug "Initialised with settings: ${settings}"
     log.info "There are ${childApps.size()} child apps"
     childApps.each {child ->
     log.info "Child app: ${child.label}"
-    } 
-
- 	state.activeDeviceList = null //  if enabled, active device list will reset each time app is saved
-
-	subscribe(state.vdevice, "speak", speakHandler) 
-	subscribe(state.vdevice, "setLevel", volumeHandler)
-	subscribe(state.vdevice, "playTextAndRestore", playTextHandler)
-	subscribe(state.vdevice, "deviceNotification", notifyHandler)
-	// Ready for later feature....
-	state.default = false
+    }    
 }
 
 def mainPage() {
@@ -95,17 +81,18 @@ def mainPage() {
 	installCheck()
 	if(state.appInstalled == 'COMPLETE'){
 	display()
-		section (){	
-	input "useOld", "bool", title: "Use Existing Speech Proxy Device", required: true, defaultValue: false, submitOnChange: true}	
-		if(useOld == true){section("Proxy Device") {input "vDevice1", "device.ProxySpeechPlayer", title: "Proxy Speaker Virtual Device"}}	
-			
+		
+		
+		
+		
+		
+		
 
 	section (){app(name: "speakerApp", appName: "Speaker Central Child", namespace: "Cobra", title: "<b>Add a new child</b>", multiple: true)}
 	displayDisable()
 	}
-	}
   }
-
+}
 
 def version(){
 //	unschedule(updateCheck)
@@ -121,7 +108,6 @@ def installCheck(){
 	state.appInstalled = app.getInstallationState() 
 	if(state.appInstalled != 'COMPLETE'){
 	section{paragraph "Please hit 'Done' to load this app into the Cobra Apps container"}
-		addDevices()
 	  }
 	else{
  //      log.info "Parent Installed OK"  
@@ -162,115 +148,6 @@ def displayDisable(){
 }
 
 
-def addDevices() {
-	log.debug("Running addDevices")
-	try { 
-		hub = location.hubs[0] 
-	} catch (error) { 
-		log.error "Hub not detected.  You must have a hub to install this app."
-		return
-	}
-	def hubId = hub.id
-	def rnd = new Random()
-	def newDNI = (rnd.nextInt(200))
-	def virtualDni = "ProxySpeechPlayer"
-	def isChild = getChildDevice(virtualDni)
-
-	if (!isChild) {
-		addChildDevice(
-			"Cobra",	
-			"ProxySpeechPlayer", 
-			virtualDni,
-			hubId, [
-				"label" : "Speaker Central TTS Device",
-				"name" : "ProxySpeechPlayer"
-			]
-		)
-			log.info "Installed Speech Proxy Device"
-		
-	}
-	state.vdevice = getChildDevice(virtualDni)
-		log.info "Installed Device = $state.vdevice "
-}
-
-def speakHandler(evt){
-	def msgIn = evt.value.toString()
-	if(state.default == false){
-	childApps.each { child ->
-			child.speakHandler(msgIn)}
-		log.info "Message = $msgIn"
-	}
-	
-	
-}
-
-def playTextHandler(evt){
-	def msgIn = evt.value.toString()
-	if(state.default == false){
-	childApps.each { child ->
-			child.playTextHandler(msgIn)}
-	}
-	
-}
-
-def notifyHandler(evt){
-	def msgIn = evt.value.toString()
-	if(state.default == false){
-	childApps.each { child ->
-			child.notifyHandler(msgIn)}
-	}
-	
-}
-
-
-
-def volumeHandler(evt){
-	def volIn = evt.value // .toString()
-	if(state.default == false){
-	childApps.each { child ->
-			child.volumeHandler(volIn)}
-	}
-}
-
-
-def askVDevice(){
-	if(useOld){state.vdevice = vDevice1}
-	else{
-	if(state.vdevice != null){
-	//	log.warn "askDevice - state.vdevice = $state.vdevice"
-		childApps.each { child ->
-			child.sendVdevice("${state.vdevice}")}
-	}
-	if(state.vdevice == null){log.warn "No Virtual Device Set"}
-  }
-}
-	
-
-def activeList(childDevice1, activeState1){
-	if(state.activeDeviceList == null){state.activeDeviceList = " "}
-//	log.warn "device = $childDevice1 - State = $activeState1"
-	
-	if(activeState1 == "active" && !state.activeDeviceList.contains("${childDevice1}")){
-		state.activeDeviceList += "<br>${childDevice1}, "
-	
-	}
-	if(activeState1 == "inactive"){
-		if(state.activeDeviceList != " " && state.activeDeviceList.contains("${childDevice1}")){
-			state.activeDeviceList -= "<br>${childDevice1}, "}}
-	if(state.activeDeviceList == null){ 
-		state.activeDeviceList = " "
-	log.info "There are no currently active devices"
-
-	}
-	if(state.activeDeviceList != " "){
-	log.info "Currently Active Devices = $state.activeDeviceList"
-		vDevice1.activeDevices(state.activeDeviceList)
-
-		
-	}
-}
-
-
 
 
 def stopAll(){
@@ -289,7 +166,7 @@ def stopAll(){
 	state.msg3 = "Enabled by parent"
 	childApps.each { child ->
 	child.stopAllChildren(state.allDisabled1, state.msg3)	
-//	log.trace "Enabling ChildApp: $child.label "
+	log.trace "Enabling ChildApp: $child.label "
 	}
 	}
 }
@@ -419,7 +296,7 @@ def pushOverUpdate(inMsg){
 
 
 def setVersion(){
-		state.version = "1.3.0"	 
+		state.version = "1.0.0"	 
 		state.InternalName = "SpeakerCentralParent" 
     	state.ExternalName = "Speaker Central Parent"
     	state.CobraAppCheck = "speakercentral.json"
