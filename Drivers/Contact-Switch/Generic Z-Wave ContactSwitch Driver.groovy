@@ -18,8 +18,9 @@
  *
  *  Z-Wave Door/Window Sensor
  *
- *  Updated 21/08/2018
+ *  Updated 30/05/2019
  *
+ *  V1.3.1 - Debug
  *  V1.3.0 - Added ability to reverse open/closed operation independently from switch
  *  V1.2.0 - Added 'force Open' and 'Force Closed'
  *  V1.1.0 - Set initial state to off and cleaned up code a little
@@ -29,18 +30,22 @@
 metadata {
     definition(name: "Generic Z-Wave Contact/Switch Driver", namespace: "Cobra", author: "Cobra") { 
 		capability "Contact Sensor"
+        capability "Water Sensor"
 		capability "Sensor"
 		capability "Battery"
         capability "Switch"
         command "forceOpen"
         command "forceClosed"
+        command "forceWet"
+        command "forceDry"
         
+		attribute "alarm", "string"
 		attribute "DriverAuthor", "string"
         attribute "DriverVersion", "string"
         attribute "DriverStatus", "string"
 		attribute "DriverUpdate", "string"
-
-		
+		attribute "lastCheckin", "string"
+		attribute "checkInterval", "string"
         
 //		fingerprint deviceId: " inClusters:0x30,0x80,0x84,0x71,0x70,0x85,0x86,0x72
 		fingerprint deviceId: "0x2001", inClusters: "0x30,0x80,0x84,0x85,0x86,0x72"
@@ -67,8 +72,9 @@ metadata {
             
             section("Switch Mode"){
 
-                input "mode", "bool", title: ("Reverse Switch Mode")    
-                input "mode1", "bool", title: ("Reverse Contact Mode")
+                input "mode", "bool", title: "Reverse Switch Mode", required: true, defaultValue: false   
+                input "mode1", "bool", title:"Reverse Contact Mode", required: true, defaultValue: false
+                input "mode2", "bool", title: "Reverse Water Mode", required: true, defaultValue: false
             }
             
         }
@@ -131,23 +137,48 @@ def forceClosed(){
     sensorValueEvent(0)  
 }
 
+def forceWet(){
+   sensorValueEvent(1) 
+    
+}
+def forceDry(){
+    sensorValueEvent(0)  
+}
+
+def on(){
+sensorValueEvent(1) 
+   
+}
+
+def off(){
+sensorValueEvent(0) 
+	
+}
+
 
 def sensorValueEvent(value) {
+    
+// lastCheckin can be used with webCoRE
+	sendEvent(name: "lastCheckin", value: now())
+    
 	if (value) {
 		createEvent(name: "contact", value: "open", descriptionText: "$device.displayName is open")
         if(mode == false){ sendEvent(name: "switch", value: "on")}        
         if(mode1 == false){sendEvent(name: "contact", value: "open")}
+        if(mode2 == false){sendEvent(name: "water", value: "wet")}
         if(mode == true){sendEvent(name: "switch", value: "off")}
         if(mode1 == true){sendEvent(name: "contact", value: "closed")}
-       
+       	if(mode2 == true){sendEvent(name: "water", value: "dry")}
          
-	} else {
+	}
+	else{
 		createEvent(name: "contact", value: "closed", descriptionText: "$device.displayName is closed")
         if(mode == false){sendEvent(name: "switch", value: "off")}
         if(mode1 == false){sendEvent(name: "contact", value: "closed")}
+        if(mode2 == false){sendEvent(name: "water", value: "dry")}
         if(mode == true){sendEvent(name: "switch", value: "on")}
         if(mode1 == true){sendEvent(name: "contact", value: "open")}
-        
+        if(mode2 == true){ sendEvent(name: "water", value: "wet")}
         
     }	
 }
@@ -373,15 +404,7 @@ private isEnerwave() {
 	zwaveInfo?.mfr?.equals("011A") && zwaveInfo?.prod?.equals("0601") && zwaveInfo?.model?.equals("0901")
 }
 
-def on(){
-sendEvent(name: "switch", value: "on")    
-    
-}
 
-def off(){
- sendEvent(name: "switch", value: "off")   
-    
-}
 
 
 
@@ -446,7 +469,7 @@ def updateCheck(){
 }
 
 def setVersion(){
-		state.Version = "1.3.0"	 
+		state.Version = "1.3.1"	 
 		state.InternalName = "ContactSwitch"
 }
 
