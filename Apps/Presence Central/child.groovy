@@ -36,11 +36,11 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 22/02/2019
+ *  Last Update: 30/05/2019
  *
  *  Changes:
  *
- *
+ *  V3.6.1 - Debug logging
  *  V3.6.0 - Added ability to NOT send volume command
  *  V3.5.1 - Debug group delay errors (thanks to @BorrisTheCat for notifying me about this)
  *  V3.5.0 - Added 'Speak A Message (Speech Synth)' as an output option
@@ -1000,20 +1000,20 @@ checkDelaySetting()
         }
     }
     
-    log.debug("presentCounter1: ${presentCounter1}")
+    LOGDEBUG("presentCounter1: ${presentCounter1}")
     
     if (presentCounter1 > 0) {
     	if (state.privatePresence1 != "present") {
     		state.privatePresence1 = "present"
             state.privatePresence = "present"
-            log.debug("A sensor arrived so setting group to '$state.privatePresence'")
+            LOGDEBUG("A sensor arrived so setting group to '$state.privatePresence'")
 			runIn(state.presence, checkPresenceAgain)
         }
     } else {
     	if (state.privatePresence1 != "not present") {
     		state.privatePresence1 = "not present"
             state.privatePresence = "not present"
-            log.debug("A sensor left so setting group to '$state.privatePresence'")
+            LOGDEBUG("A sensor left so setting group to '$state.privatePresence'")
 			runIn(state.nopresence, checkPresenceAgain)
         }
     }
@@ -1030,11 +1030,11 @@ def	presentCounter2 = 0
 	
 			def home = presenceSensor3.findAll { it?.currentValue("presence") == 'present' }
 			def sensorsPresent = "${home.join(',')}"
-			log.info "Sensors Present = $sensorsPresent"
+			LOGDEBUG("Sensors Present = $sensorsPresent")
 	
 			def away = presenceSensor3.findAll { it?.currentValue("presence") == 'not present' }
 			def sensorsNotPresent = "${away.join(',')}"
-			log.info "Sensors Not Present = $sensorsNotPresent"
+			LOGDEBUG("Sensors Not Present = $sensorsNotPresent")
 	
         presenceSensor3.each {
     	if (it.currentValue("presence") == "present") {
@@ -1042,20 +1042,20 @@ def	presentCounter2 = 0
         }
     }
     
-    log.debug("Number of sensors present: ${presentCounter2}")
+    LOGDEBUG("Number of sensors present: ${presentCounter2}")
     
     if (presentCounter2 > 0) {
     	if (state.privatePresence2 != "present") {
             state.privatePresence2 = "present"
             state.privatePresence = "present"
-			log.debug("Arrived - At least one sensor arrived - set group to '$state.privatePresence'")
+			LOGDEBUG("Arrived - At least one sensor arrived - set group to '$state.privatePresence'")
              runIn(state.presence, checkPresenceAgain)
         }
     } else {
     	if (state.privatePresence2 != "not present") {
             state.privatePresence2 = "not present"
             state.privatePresence = "not present"
-            log.debug("Departed - Last sensor left - set group to '$state.privatePresence'")
+            LOGDEBUG("Departed - Last sensor left - set group to '$state.privatePresence'")
              runIn(state.nopresence, checkPresenceAgain)
         }
     }
@@ -1072,11 +1072,11 @@ def	presentCounter3 = 0
 	
 	def home = presenceSensor5.findAll { it?.currentValue("presence") == 'present' }
 			def sensorsPresent = "${home.join(',')}"
-			log.info "Sensors Present = $sensorsPresent"
+			LOGDEBUG("Sensors Present = $sensorsPresent")
 	
 			def away = presenceSensor5.findAll { it?.currentValue("presence") == 'not present' }
 			def sensorsNotPresent = "${away.join(',')}"
-			log.info "Sensors Not Present = $sensorsNotPresent"
+			LOGDEBUG("Sensors Not Present = $sensorsNotPresent")
 	
 	
         presenceSensor5.each {
@@ -1091,7 +1091,7 @@ def	presentCounter3 = 0
     	if (state.privatePresence3 != "not present") {
             state.privatePresence3 = "not present"
             state.privatePresence = "not present"
-            log.debug("Arrived - At least one sensor left - set group to '$state.privatePresence'")
+            LOGDEBUG("Arrived - At least one sensor left - set group to '$state.privatePresence'")
             runIn(state.nopresence, checkPresenceAgain)
              
         }
@@ -1099,8 +1099,8 @@ def	presentCounter3 = 0
     	if (state.privatePresence3 != "present") {
             state.privatePresence3 = "present"
             state.privatePresence = "present"
-            log.debug("Departed - All sensors present - set group to '$state.privatePresence'")
-			log.warn "state.nopresence = $state.nopresence"
+            LOGDEBUG("Departed - All sensors present - set group to '$state.privatePresence'")
+			LOGDEBUG("state.nopresence = $state.nopresence")
             runIn(state.presence, checkPresenceAgain)
         }
     }
@@ -2055,7 +2055,7 @@ def setDefaults(){
 
 
 def setVersion(){
-		state.version = "3.6.0"
+		state.version = "3.6.1"
      		state.InternalName = "PresenceCentralChild"
     		state.ExternalName = "Presence Central Child"
 			state.preCheckMessage = "This app is designed to react to presence sensor(s)." 

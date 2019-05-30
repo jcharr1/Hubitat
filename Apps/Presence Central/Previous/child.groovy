@@ -36,10 +36,12 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 20/02/2019
+ *  Last Update: 22/02/2019
  *
  *  Changes:
  *
+ *
+ *  V3.6.0 - Added ability to NOT send volume command
  *  V3.5.1 - Debug group delay errors (thanks to @BorrisTheCat for notifying me about this)
  *  V3.5.0 - Added 'Speak A Message (Speech Synth)' as an output option
  *  V3.4.1 - debug presence delays
@@ -342,23 +344,31 @@ if (presenceAction) {
  
     else if(state.selection2 == "Speak A Message (Music Player)"){ 
     input "speaker", "capability.musicPlayer", title: "Choose speaker(s)", required: false, multiple: true
+	input "doVolume", "bool", title: "Set Volume before speaking", required: true, defaultValue: true, submitOnChange: true
+		if(doVolume == true){ 
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "100",  required: true
-    input "message1", "text", title: "Message to play when sensor arrives (Or is present at check time)",  required: false
-	input "message2", "text", title: "Message to play when sensor leaves (Or is not present at check time)",  required: false
-    input "msgDelay", "number", title: "Minutes delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
+		}
+    input "message1", "text", title: "Message to play when sensor arrives (Or is present at check time)",  required: false
+	input "message2", "text", title: "Message to play when sensor leaves (Or is not present at check time)",  required: false
+    input "msgDelay", "number", title: "Minutes delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+	
 	}
     else if(state.selection2 == "Speak A Message (Speech Synth)"){ 
     input "speaker", "capability.speechSynthesis", title: "Choose speaker(s)", required: false, multiple: true
+		input "doVolume", "bool", title: "Set Volume before speaking", required: true, defaultValue: true, submitOnChange: true
+		if(doVolume == true){ 
 	input "volume1", "number", title: "Normal Speaker volume", description: "0-100%", defaultValue: "100",  required: true
-    input "message1", "text", title: "Message to play when sensor arrives (Or is present at check time)",  required: false
-	input "message2", "text", title: "Message to play when sensor leaves (Or is not present at check time)",  required: false
-    input "msgDelay", "number", title: "Minutes delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
 	input "volume2", "number", title: "Quiet Time Speaker volume", description: "0-100%", defaultValue: "0",  required: true
     input "fromTime2", "time", title: "Quiet Time Start", required: false
     input "toTime2", "time", title: "Quiet Time End", required: false
+		}
+    input "message1", "text", title: "Message to play when sensor arrives (Or is present at check time)",  required: false
+	input "message2", "text", title: "Message to play when sensor leaves (Or is not present at check time)",  required: false
+    input "msgDelay", "number", title: "Minutes delay between messages (Enter 0 for no delay)", defaultValue: '0', description: "Minutes", required: true
+	
 	}
     
      else if(state.selection2 == "Send An SMS Message"){
@@ -1472,6 +1482,7 @@ LOGDEBUG( "Timer reset - Actions allowed again...")
 // Check volume levels ****************************************
 
 def checkVolume(){
+	if(doVolume == true){ 
 def timecheck = fromTime2
 if (timecheck != null){
 def between2 = timeOfDayIsBetween(toDateTime(fromTime2), toDateTime(toTime2), new Date(), location.timeZone)
@@ -1503,7 +1514,7 @@ state.volume = volume1
 	if(state.selection2 == "Speak A Message (Music Player)"){ speaker.setLevel(state.volume)}
 
 	}
- 
+  }
 }
 
 
@@ -2044,7 +2055,7 @@ def setDefaults(){
 
 
 def setVersion(){
-		state.version = "3.5.1"
+		state.version = "3.6.0"
      		state.InternalName = "PresenceCentralChild"
     		state.ExternalName = "Presence Central Child"
 			state.preCheckMessage = "This app is designed to react to presence sensor(s)." 
