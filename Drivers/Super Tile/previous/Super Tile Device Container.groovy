@@ -1,7 +1,7 @@
 /**
  *  SuperTile Virtual Container
  *
- *  Copyright 2019 Andrew Parker
+ *  Copyright 2018 Andrew Parker
  * 
  * This container was created using code from Stephan Hackett and I thank him for his contribution to this project
  *
@@ -15,18 +15,18 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *  09/04/2019 - Added countdown device
+ *  
  *  02/04/2019 - edited to strip it down to Super Tile devices only
  *
  *
  *
  */
 
-def version() {"2.0.0"}
+def version() {"1.0"}
 
 metadata {
-	definition (name: "Super Tile Device Container", namespace: "Cobra", author: "Andrew Parker", importUrl: "https://raw.githubusercontent.com/CobraVmax/Hubitat/master/Drivers/Super%20Tile/Super%20Tile%20Device%20Container.groovy"){
-		capability "Sensor"
+	definition (name: "Super Tile Device Container", namespace: "Cobra", author: "Andrew Parker") {
+  //      capability "Refresh"
         attribute "NumberOfDevices", "number"	//stores the total number of child switches created by the container
         command "createNewVirtualDevice", ["NAME"] // , "TYPE"] //creates a new Virtual Device of the type specified and with entered label
     }
@@ -42,7 +42,7 @@ input "typeOfDevice", "enum", required: true, title: "Select Type ", submitOnCha
 def deviceList1(){
 deviceInput = [
        "Standard Tile Display Device",
-      "Countdown Tile Display Device",
+ //      "Countdown Tile Display Device",
  //      "Icon Tile Display Device",
 //		"Alert Tile Display Device",
 	"Other Devices Coming Soon..."
@@ -83,12 +83,6 @@ def updateSize() {
 }
 
 def createNewVirtualDevice(vName){
-	state.vname = vName
-	log.warn "vName = $state.vname"
-	if(state.vname == null){
-		log.warn "No Device Name Entered!"
-	}
-	if(state.vname != null){
    state.vsIndex = state.vsIndex + 1	//increment even on invalid device type
     switch(state.device1){
         case ["Standard Tile Display Device"]:
@@ -98,7 +92,7 @@ def createNewVirtualDevice(vName){
         break
         case ["Countdown Tile Display Device"]:
         	log.info "Creating Virtual  Device: ${vName}"
-			childDevice = addChildDevice("Cobra", "SuperTileCountdownDisplay", "VS-${device.deviceNetworkId}-${state.vsIndex}", [label: "${vName}", isComponent: false])
+			childDevice = addChildDevice("Cobra", "SuperTileTimeDisplay", "VS-${device.deviceNetworkId}-${state.vsIndex}", [label: "${vName}", isComponent: false])
     		updateSize()
         break
 		 case ["Icon Tile Display Device"]:
@@ -112,7 +106,7 @@ def createNewVirtualDevice(vName){
     		updateSize()
         break
 }
-	}	
+	
 }
 	
 	

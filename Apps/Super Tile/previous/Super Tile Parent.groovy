@@ -26,12 +26,10 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 30/05/2019
+ *  Last Update: 01/04/2019
  *
  *  Changes:
  *
- *  V1.2.0 - Added random update check
- *  V1.1.0 - Added countdown child app
  *  V1.0.0 - POC
  *
  */
@@ -79,11 +77,11 @@ def mainPage() {
 		chooseApps()
 	section (){
 		if(state.appList.contains("Super Tile Display")){app(name: "tileApp1", appName: "Super Tile Display", namespace: "Cobra", title: "<b>Add a new standard app</b>", multiple: true)}	
-		if(state.appList.contains("Super Tile Countdown")){app(name: "tileApp2", appName: "Super Tile Countdown", namespace: "Cobra", title: "<b>Add a new timer app</b>", multiple: true)}	
-		if(state.appList.contains("Super Tile Alerts")){app(name: "tileApp3", appName: "Super Tile Alerts", namespace: "Cobra", title: "<b>Add a new alert app</b>", multiple: true)}
+		if(state.appList.contains("Super Tile Time")){app(name: "tileApp2", appName: "Super Tile Time", namespace: "Cobra", title: "<b>Add a new timer app</b>", multiple: true)}	
+		if(state.appList.contains("Super Tile Icons")){app(name: "tileApp3", appName: "Super Tile Icons", namespace: "Cobra", title: "<b>Add a new icon app</b>", multiple: true)}
 		if(state.appList.contains("Other options coming soon...")){
 			
-		paragraph "Additional childapps in the way of 'Modules' will be added soon. <br>Watch this space..."
+		paragraph "Additional childapps in the way of 'Modules' will be added soon. <br>One of the things on the drawing board is a 'Countdown' timer that can be 'Superimposed' on an existing Super Tile Display. <br>Another is the ability to use changing icons for some devices. <br>Watch this space..."
 			}
 		}	
 		
@@ -106,10 +104,11 @@ def chooseApps(){
 
 def checkInput(){
     listInput = [
-//		"Super Tile Alerts",        
-        "Super Tile Countdown",
+        
+ //     "Super Tile Time", //soon...
+//      "Super Tile Icons", // soon...
         "Super Tile Display",
-		"Other options coming soon..."
+	"Other options coming soon..."
 		
 ]  
     
@@ -124,10 +123,9 @@ def checkInput(){
 def version(){
 	updateCheck()
     resetBtnName()
-	def random = new Random()
-    Integer randomHour = random.nextInt(18-10) + 10
-    Integer randomDayOfWeek = random.nextInt(7-1) + 1 // 1 to 7
-    schedule("0 0 " + randomHour + " ? * " + randomDayOfWeek, updateCheck)     
+	
+    schedule("${state.checkCron}", updateCheck) //  Check for updates every Friday
+      
     checkButtons()
    
 }
@@ -280,11 +278,6 @@ def updateCheck(){
             state.updateMsg = "There is a new version of '$state.ExternalName' available (Version: $newVerRaw)"
             pushOverUpdate(state.updateMsg)
        		} 
-		else if(currentVer > newVer){
-        	state.status = "You are using a BETA ($state.version) - Release Version: $newVerRaw"
-        	log.warn "** <b>$state.status</b>) **"
-        	state.UpdateInfo = "N/A"
-		}
 		else{ 
       		state.status = "Current"
        		log.info("You are using the current version of this app")
@@ -330,11 +323,11 @@ def pushOverUpdate(inMsg){
 
 
 def setVersion(){
-		state.version = "1.2.0"	 
+		state.version = "1.0.0"	 
 		state.InternalName = "SuperTileParent" 
     	state.ExternalName = "Super Tile Parent"
     	state.CobraAppCheck = "supertile.json"
-		
+		state.checkCron = "0 20 9 ? * FRI *"
 }
 
 
