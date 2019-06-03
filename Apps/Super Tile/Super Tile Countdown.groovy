@@ -242,7 +242,7 @@ Date start = Date.parse('dd.MM.yyyy HH:mm', nowdate)
 	def	days = state.days
 	int weeks = (days % 365) / 7
 		days  = (days % 365) % 7
-	state.timeLeft = "<b> Weeks: </b>" +weeks +"<b> Days: </b>" +days +" <b> Hrs: </b>" +duration.hours +" <b> Mins: </b>" +duration.minutes 
+	state.timeLeft = "<b>Weeks: </b>" +weeks +" <b> Days: </b>" +days +" <b> Hrs: </b>" +duration.hours +" <b> Mins: </b>" +duration.minutes 
 		
 	}
 	
@@ -256,7 +256,7 @@ Date start = Date.parse('dd.MM.yyyy HH:mm', nowdate)
         int weeks = (days % 365) / 7
             days  = (days % 365) % 7	
 	
-	state.timeLeft = "<b>Years: </b>" +years +"<b> Weeks: </b>" +weeks +"<b> Days: </b>" +days +" <b> Hrs: </b>" +duration.hours +" <b> Mins: </b>" +duration.minutes 
+	state.timeLeft = "<b>Years: </b>" +years +" <b> Weeks: </b>" +weeks +" <b> Days: </b>" +days +" <b> Hrs: </b>" +duration.hours +" <b> Mins: </b>" +duration.minutes 
 		
 //		log.warn "result = years: $years  - weeks: $weeks - days: $days - hrs = $state.hours - mins: $state.minutes"
 	}
