@@ -26,10 +26,12 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 30/05/2019
+ *  Last Update: 03/06/2019
  *
  *  Changes:
  *
+ *  
+ *  V2.3.2 - Display current character count on tile if > 1024 - Display license notification text on install
  *  V2.3.1 - Debug extra logging
  *  V2.3.0 - Work around for HTML in text boxes - Added optional 'special character' input settings
  *  V2.2.0 - Added logsdownagain to turn off all logging after 24 hrs
@@ -481,7 +483,7 @@ LOGDEBUG("sendDash")
 	state.CharNumber = state.dashFormat.length()
 	if(state.CharNumber > 1024){
 	LOGDEBUG("Too many characters for an attribute tile - $state.CharNumber")
-	vDevice1.tileIn("Unable to Display<br>Please Check Character Number<br>(1024 Max)")
+	vDevice1.tileIn("Unable to Display<br>Please Check Character Number<br>Currently: $state.CharNumber<br>(Max 1024)")
 	}
 	if(state.CharNumber < 1024 && state.dashFormat != null){
 	vDevice1.tileIn(state.dashFormat)	
@@ -2263,10 +2265,6 @@ def version(){
 	pauseOrNot()
 	logCheck()
 	resetBtnName()
-	def random = new Random()
-    Integer randomHour = random.nextInt(18-10) + 10
-    Integer randomDayOfWeek = random.nextInt(7-1) + 1 // 1 to 7
-    schedule("0 0 " + randomHour + " ? * " + randomDayOfWeek, updateCheck) 
 	checkButtons()
 	
    
@@ -2481,7 +2479,7 @@ def preCheck(){
 	setVersion()
     state.appInstalled = app.getInstallationState()  
     if(state.appInstalled != 'COMPLETE'){
-    section(){ paragraph "$state.preCheckMessage"}
+    section(){ paragraph "$state.preCheckMessage <br><br> $state.agreementNotice"}
     }
     if(state.appInstalled == 'COMPLETE'){
 	LOGDEBUG(" installed ok....")
@@ -2493,15 +2491,20 @@ def setDefaults(){
     LOGDEBUG("Initialising defaults...")
     if(pause1 == null){pause1 = false}
     if(state.pauseApp == null){state.pauseApp = false}
+	def random = new Random()
+    Integer randomHour = random.nextInt(18-10) + 10
+    Integer randomDayOfWeek = random.nextInt(7-1) + 1 
+    schedule("0 0 " + randomHour + " ? * " + randomDayOfWeek, updateCheck) 
    }
 
     
 def setVersion(){
-		state.version = "2.3.1"	 
+		state.version = "2.3.2"	 
 		state.InternalName = "SuperTileDisplay"
     	state.ExternalName = "Super Tile Display"
 		state.preCheckMessage = "This app was designed to use a special Virtual Display device  to display data on a dashboard tile"
-    	state.CobraAppCheck = "supertiledisplay.json"
+		state.agreementNotice = "By downloading, installing, and/or executing this software you hereby agree to the terms and conditions set forth in the Software license agreement.<br>This agreement can be found on-line at: http://hubitat.uk/Software_License_Agreement.txt"
+		state.CobraAppCheck = "supertiledisplay.json"
 		
 }
 

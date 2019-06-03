@@ -26,10 +26,11 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 30/05/2019
+ *  Last Update: 03/06/2019
  *
  *  Changes:
  *
+ *  V1.2.1 - Display license notification text on install
  *  V1.2.0 - Added random update check
  *  V1.1.0 - Added countdown child app
  *  V1.0.0 - POC
@@ -133,10 +134,11 @@ def version(){
 }
 
 
-def installCheck(){         
+def installCheck(){       
+	setVersion()
 	state.appInstalled = app.getInstallationState() 
 	if(state.appInstalled != 'COMPLETE'){
-	section{paragraph "Please hit 'Done' to install this app"}
+	section{paragraph "Please hit 'Done' to install this app <br><br>$state.agreementNotice"}
 	  }
 	else{
  //      log.info "Parent Installed OK"  
@@ -330,9 +332,10 @@ def pushOverUpdate(inMsg){
 
 
 def setVersion(){
-		state.version = "1.2.0"	 
+		state.version = "1.2.1"	 
 		state.InternalName = "SuperTileParent" 
     	state.ExternalName = "Super Tile Parent"
+		state.agreementNotice = "By downloading, installing, and/or executing this software you hereby agree to the terms and conditions set forth in the Software license agreement.<br>This agreement can be found on-line at: http://hubitat.uk/Software_License_Agreement.txt"
     	state.CobraAppCheck = "supertile.json"
 		
 }
