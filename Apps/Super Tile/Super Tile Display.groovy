@@ -26,11 +26,11 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 03/06/2019
+ *  Last Update: 10/06/2019
  *
  *  Changes:
  *
- *  
+ *  V2.4.0 - Added icons for Motion Sensors
  *  V2.3.2 - Display current character count on tile if > 1024 - Display license notification text on install
  *  V2.3.1 - Debug extra logging
  *  V2.3.0 - Work around for HTML in text boxes - Added optional 'special character' input settings
@@ -165,78 +165,91 @@ if(device32){subscribe(device32, device32attrib, device32Handler)}
 	if(monitor1aType == "Water"){subscribe(deviceMonitor1a, "water", device1aHandler)}
 	if(monitor1aType == "Light"){subscribe(deviceMonitor1a, "switch", device1aHandler)}
 	if(monitor1aType == "Lock"){subscribe(deviceMonitor1a, "lock", device1aHandler)}
-	if(monitor1aType == "Switch"){subscribe(deviceMonitor1a, "switch", device1aHandler)}		
+	if(monitor1aType == "Switch"){subscribe(deviceMonitor1a, "switch", device1aHandler)}
+	if(monitor1aType == "Motion"){subscribe(deviceMonitor1a, "motion", device1aHandler)}
 	if(monitor1bType == "Contact"){subscribe(deviceMonitor1b, "contact", device1bHandler)}
 	if(monitor1bType == "Presence"){subscribe(deviceMonitor1b, "presence", device1bHandler)}
 	if(monitor1bType == "Water"){subscribe(deviceMonitor1b, "water", device1bHandler)}
 	if(monitor1bType == "Light"){subscribe(deviceMonitor1b, "switch", device1bHandler)}
 	if(monitor1bType == "Switch"){subscribe(deviceMonitor1b, "switch", device1bHandler)}
 	if(monitor1bType == "Lock"){subscribe(deviceMonitor1b, "lock", device1bHandler)}
+		if(monitor1bType == "Motion"){subscribe(deviceMonitor1b, "motion", device1bHandler)}
 	if(monitor1cType == "Contact"){subscribe(deviceMonitor1c, "contact", device1cHandler)}
 	if(monitor1cType == "Presence"){subscribe(deviceMonitor1c, "presence", device1cHandler)}
 	if(monitor1cType == "Water"){subscribe(deviceMonitor1c, "water", device1cHandler)}
 	if(monitor1cType == "Light"){subscribe(deviceMonitor1c, "switch", device1cHandler)}
 	if(monitor1cType == "Switch"){subscribe(deviceMonitor1c, "switch", device1cHandler)}
 	if(monitor1cType == "Lock"){subscribe(deviceMonitor1c, "lock", device1cHandler)}
+		if(monitor1cType == "Motion"){subscribe(deviceMonitor1c, "motion", device1cHandler)}
 	if(monitor1dType == "Contact"){subscribe(deviceMonitor1d, "contact", device1dHandler)}
 	if(monitor1dType == "Presence"){subscribe(deviceMonitor1d, "presence", device1dHandler)}
 	if(monitor1dType == "Water"){subscribe(deviceMonitor1d, "water", device1dHandler)}
 	if(monitor1dType == "Light"){subscribe(deviceMonitor1d, "switch", device1dHandler)}
 	if(monitor1dType == "Switch"){subscribe(deviceMonitor1d, "switch", device1dHandler)}
 	if(monitor1dType == "Lock"){subscribe(deviceMonitor1d, "lock", device1dHandler)}
+		if(monitor1dType == "Motion"){subscribe(deviceMonitor1d, "motion", device1dHandler)}
 	if(monitor2aType == "Contact"){subscribe(deviceMonitor2a, "contact", device2aHandler)}
 	if(monitor2aType == "Presence"){subscribe(deviceMonitor2a, "presence", device2aHandler)}
 	if(monitor2aType == "Water"){subscribe(deviceMonitor2a, "water", device2aHandler)}
 	if(monitor2aType == "Light"){subscribe(deviceMonitor2a, "switch", device2aHandler)}
 	if(monitor2aType == "Switch"){subscribe(deviceMonitor2a, "switch", device2aHandler)}
 	if(monitor2aType == "Lock"){subscribe(deviceMonitor2a, "lock", device2aHandler)}
+		if(monitor2aType == "Motion"){subscribe(deviceMonitor2a, "motion", device2aHandler)}
 	if(monitor2bType == "Contact"){subscribe(deviceMonitor2b, "contact", device2bHandler)}
 	if(monitor2bType == "Presence"){subscribe(deviceMonitor2b, "presence", device2bHandler)}
 	if(monitor2bType == "Water"){subscribe(deviceMonitor2b, "water", device2bHandler)}
 	if(monitor2bType == "Light"){subscribe(deviceMonitor2b, "switch", device2bHandler)}
 	if(monitor2bType == "Switch"){subscribe(deviceMonitor2b, "switch", device2bHandler)}
 		if(monitor2bType == "Lock"){subscribe(deviceMonitor2b, "lock", device2bHandler)}
+		if(monitor2bType == "Motion"){subscribe(deviceMonitor2b, "motion", device2bHandler)}
 	if(monitor2cType == "Contact"){subscribe(deviceMonitor2c, "contact", device2cHandler)}
 	if(monitor2cType == "Presence"){subscribe(deviceMonitor2c, "presence", device2cHandler)}
 	if(monitor2cType == "Water"){subscribe(deviceMonitor2c, "water", device2cHandler)}
 	if(monitor2cType == "Light"){subscribe(deviceMonitor2c, "switch", device2cHandler)}
 	if(monitor2cType == "Switch"){subscribe(deviceMonitor2c, "switch", device2cHandler)}
 		if(monitor2cType == "Lock"){subscribe(deviceMonitor2c, "lock", device2cHandler)}
+		if(monitor2cType == "Motion"){subscribe(deviceMonitor2c, "motion", device2cHandler)}
 	if(monitor2dType == "Contact"){subscribe(deviceMonitor2d, "contact", device2dHandler)}
 	if(monitor2dType == "Presence"){subscribe(deviceMonitor2d, "presence", device2dHandler)}
 	if(monitor2dType == "Water"){subscribe(deviceMonitor2d, "water", device2dHandler)}
 	if(monitor2dType == "Light"){subscribe(deviceMonitor2d, "switch", device2dHandler)}
 	if(monitor2dType == "Switch"){subscribe(deviceMonitor2d, "switch", device2dHandler)}
 		if(monitor2dType == "Lock"){subscribe(deviceMonitor2a, "lock", device2aHandler)}
+		if(monitor2dType == "Motion"){subscribe(deviceMonitor2d, "motion", device2dHandler)}
 	if(monitor3aType == "Contact"){subscribe(deviceMonitor3a, "contact", device3aHandler)}
 	if(monitor3aType == "Presence"){subscribe(deviceMonitor3a, "presence", device3aHandler)}
 	if(monitor3aType == "Water"){subscribe(deviceMonitor3a, "water", device3aHandler)}
 	if(monitor3aType == "Light"){subscribe(deviceMonitor3a, "switch", device3aHandler)}
 	if(monitor3aType == "Switch"){subscribe(deviceMonitor3a, "switch", device3aHandler)}
 			if(monitor3aType == "Lock"){subscribe(deviceMonitor3a, "lock", device3aHandler)}
+		if(monitor3aType == "Motion"){subscribe(deviceMonitor3a, "motion", device3aHandler)}
 	if(monitor3bType == "Contact"){subscribe(deviceMonitor3b, "contact", device3bHandler)}
 	if(monitor3bType == "Presence"){subscribe(deviceMonitor3b, "presence", device3bHandler)}
 	if(monitor3bType == "Water"){subscribe(deviceMonitor3b, "water", device3bHandler)}
 	if(monitor3bType == "Light"){subscribe(deviceMonitor3b, "switch", device3bHandler)}
 	if(monitor3bType == "Switch"){subscribe(deviceMonitor3b, "switch", device3bHandler)}
 			if(monitor3bType == "Lock"){subscribe(deviceMonitor3b, "lock", device3bHandler)}
+		if(monitor3bType == "Motion"){subscribe(deviceMonitor3b, "motion", device3bHandler)}
 	if(monitor3cType == "Contact"){subscribe(deviceMonitor3c, "contact", device3cHandler)}
 	if(monitor3cType == "Presence"){subscribe(deviceMonitor3c, "presence", device3cHandler)}
 	if(monitor3cType == "Water"){subscribe(deviceMonitor3c, "water", device3cHandler)}
 	if(monitor3cType == "Light"){subscribe(deviceMonitor3c, "switch", device3cHandler)}
 	if(monitor3cType == "Switch"){subscribe(deviceMonitor3c, "switch", device3cHandler)}
 			if(monitor3cType == "Lock"){subscribe(deviceMonitor3c, "lock", device3cHandler)}
+		if(monitor3cType == "Motion"){subscribe(deviceMonitor3c, "motion", device3cHandler)}
 	if(monitor3dType == "Contact"){subscribe(deviceMonitor3d, "contact", device3dHandler)}
 	if(monitor3dType == "Presence"){subscribe(deviceMonitor3d, "presence", device3dHandler)}
 	if(monitor3dType == "Water"){subscribe(deviceMonitor3d, "water", device3dHandler)}
 	if(monitor3dType == "Light"){subscribe(deviceMonitor3d, "switch", device3dHandler)}
 	if(monitor3dType == "Switch"){subscribe(deviceMonitor3d, "switch", device3dHandler)}
 			if(monitor3dType == "Lock"){subscribe(deviceMonitor3d, "lock", device3dHandler)}
+		if(monitor3dType == "Motion"){subscribe(deviceMonitor3d, "motion", device3dHandler)}
 	if(monitor4aType == "Contact"){subscribe(deviceMonitor4a, "contact", device4aHandler)}
 	if(monitor4aType == "Presence"){subscribe(deviceMonitor4a, "presence", device4aHandler)}
 	if(monitor4aType == "Water"){subscribe(deviceMonitor4a, "water", device4aHandler)}
 	if(monitor4aType == "Light"){subscribe(deviceMonitor4a, "switch", device4aHandler)}
 			if(monitor4aType == "Lock"){subscribe(deviceMonitor4a, "lock", device4aHandler)}
+		if(monitor4aType == "Motion"){subscribe(deviceMonitor4a, "motion", device4aHandler)}
 	if(monitor4aType == "Switch"){subscribe(deviceMonitor4a, "switch", device4aHandler)}		
 	if(monitor4bType == "Contact"){subscribe(deviceMonitor4b, "contact", device4bHandler)}
 	if(monitor4bType == "Presence"){subscribe(deviceMonitor4b, "presence", device4bHandler)}
@@ -244,114 +257,133 @@ if(device32){subscribe(device32, device32attrib, device32Handler)}
 	if(monitor4bType == "Light"){subscribe(deviceMonitor4b, "switch", device4bHandler)}
 	if(monitor4bType == "Switch"){subscribe(deviceMonitor4b, "switch", device4bHandler)}
 			if(monitor4bType == "Lock"){subscribe(deviceMonitor4b, "lock", device4bHandler)}
+		if(monitor4bType == "Motion"){subscribe(deviceMonitor4b, "motion", device4bHandler)}
 	if(monitor4cType == "Contact"){subscribe(deviceMonitor4c, "contact", device4cHandler)}
 	if(monitor4cType == "Presence"){subscribe(deviceMonitor4c, "presence", device4cHandler)}
 	if(monitor4cType == "Water"){subscribe(deviceMonitor4c, "water", device4cHandler)}
 	if(monitor4cType == "Light"){subscribe(deviceMonitor4c, "switch", device4cHandler)}
 	if(monitor4cType == "Switch"){subscribe(deviceMonitor4c, "switch", device4cHandler)}
 				if(monitor4cType == "Lock"){subscribe(deviceMonitor4c, "lock", device4cHandler)}
+		if(monitor4cType == "Motion"){subscribe(deviceMonitor4c, "motion", device4cHandler)}
 	if(monitor4dType == "Contact"){subscribe(deviceMonitor4d, "contact", device4dHandler)}
 	if(monitor4dType == "Presence"){subscribe(deviceMonitor4d, "presence", device4dHandler)}
 	if(monitor4dType == "Water"){subscribe(deviceMonitor4d, "water", device4dHandler)}
 	if(monitor4dType == "Light"){subscribe(deviceMonitor4d, "switch", device4dHandler)}
 	if(monitor4dType == "Switch"){subscribe(deviceMonitor4d, "switch", device4dHandler)}
 				if(monitor4dType == "Lock"){subscribe(deviceMonitor4d, "lock", device4dHandler)}
+		if(monitor4dType == "Motion"){subscribe(deviceMonitor4d, "motion", device4dHandler)}
 	if(monitor5aType == "Contact"){subscribe(deviceMonitor5a, "contact", device5aHandler)}
 	if(monitor5aType == "Presence"){subscribe(deviceMonitor5a, "presence", device5aHandler)}
 	if(monitor5aType == "Water"){subscribe(deviceMonitor5a, "water", device5aHandler)}
 	if(monitor5aType == "Light"){subscribe(deviceMonitor5a, "switch", device5aHandler)}
 	if(monitor5aType == "Switch"){subscribe(deviceMonitor5a, "switch", device5aHandler)}
 				if(monitor5aType == "Lock"){subscribe(deviceMonitor5a, "lock", device5aHandler)}
+		if(monitor5aType == "Motion"){subscribe(deviceMonitor5a, "motion", device5aHandler)}
 	if(monitor5bType == "Contact"){subscribe(deviceMonitor5b, "contact", device5bHandler)}
 	if(monitor5bType == "Presence"){subscribe(deviceMonitor5b, "presence", device5bHandler)}
 	if(monitor5bType == "Water"){subscribe(deviceMonitor5b, "water", device5bHandler)}
 	if(monitor5bType == "Light"){subscribe(deviceMonitor5b, "switch", device5bHandler)}
 	if(monitor5bType == "Switch"){subscribe(deviceMonitor5b, "switch", device5bHandler)}
 				if(monitor5bType == "Lock"){subscribe(deviceMonitor5b, "lock", device5bHandler)}
+		if(monitor5bType == "Motion"){subscribe(deviceMonitor5b, "motion", device5bHandler)}
 	if(monitor5cType == "Contact"){subscribe(deviceMonitor5c, "contact", device5cHandler)}
 	if(monitor5cType == "Presence"){subscribe(deviceMonitor5c, "presence", device5cHandler)}
 	if(monitor5cType == "Water"){subscribe(deviceMonitor5c, "water", device5cHandler)}
 	if(monitor5cType == "Light"){subscribe(deviceMonitor5c, "switch", device5cHandler)}
 	if(monitor5cType == "Switch"){subscribe(deviceMonitor5c, "switch", device5cHandler)}
 				if(monitor5cType == "Lock"){subscribe(deviceMonitor5c, "lock", device5cHandler)}
+		if(monitor5cType == "Motion"){subscribe(deviceMonitor5c, "motion", device5cHandler)}
 	if(monitor5dType == "Contact"){subscribe(deviceMonitor5d, "contact", device5dHandler)}
 	if(monitor5dType == "Presence"){subscribe(deviceMonitor5d, "presence", device5dHandler)}
 	if(monitor5dType == "Water"){subscribe(deviceMonitor5d, "water", device5dHandler)}
 	if(monitor5dType == "Light"){subscribe(deviceMonitor5d, "switch", device5dHandler)}
 	if(monitor5dType == "Switch"){subscribe(deviceMonitor5d, "switch", device5dHandler)}
 				if(monitor5dType == "Lock"){subscribe(deviceMonitor5d, "lock", device5dHandler)}
+		if(monitor5dType == "Motion"){subscribe(deviceMonitor5d, "motion", device5dHandler)}
 	if(monitor6aType == "Contact"){subscribe(deviceMonitor6a, "contact", device6aHandler)}
 	if(monitor6aType == "Presence"){subscribe(deviceMonitor6a, "presence", device6aHandler)}
 	if(monitor6aType == "Water"){subscribe(deviceMonitor6a, "water", device6aHandler)}
 	if(monitor6aType == "Light"){subscribe(deviceMonitor6a, "switch", device6aHandler)}
 	if(monitor6aType == "Switch"){subscribe(deviceMonitor6a, "switch", device6aHandler)}
 				if(monitor6aType == "Lock"){subscribe(deviceMonitor6a, "lock", device6aHandler)}
+		if(monitor6aType == "Motion"){subscribe(deviceMonitor6a, "motion", device6aHandler)}
 	if(monitor6bType == "Contact"){subscribe(deviceMonitor6b, "contact", device6bHandler)}
 	if(monitor6bType == "Presence"){subscribe(deviceMonitor6b, "presence", device6bHandler)}
 	if(monitor6bType == "Water"){subscribe(deviceMonitor6b, "water", device6bHandler)}
 	if(monitor6bType == "Light"){subscribe(deviceMonitor6b, "switch", device6bHandler)}
 	if(monitor6bType == "Switch"){subscribe(deviceMonitor6b, "switch", device6bHandler)}
 		if(monitor6bType == "Lock"){subscribe(deviceMonitor6b, "lock", device6bHandler)}
+		if(monitor6bType == "Motion"){subscribe(deviceMonitor6b, "motion", device6bHandler)}
 	if(monitor6cType == "Contact"){subscribe(deviceMonitor6c, "contact", device6cHandler)}
 	if(monitor6cType == "Presence"){subscribe(deviceMonitor6c, "presence", device6cHandler)}
 	if(monitor6cType == "Water"){subscribe(deviceMonitor6c, "water", device6cHandler)}
 	if(monitor6cType == "Light"){subscribe(deviceMonitor6c, "switch", device6cHandler)}
 	if(monitor6cType == "Switch"){subscribe(deviceMonitor6c, "switch", device6cHandler)}
 		if(monitor6cType == "Lock"){subscribe(deviceMonitor6c, "lock", device6cHandler)}
+		if(monitor6cType == "Motion"){subscribe(deviceMonitor6c, "motion", device6cHandler)}
 	if(monitor6dType == "Contact"){subscribe(deviceMonitor6d, "contact", device6dHandler)}
 	if(monitor6dType == "Presence"){subscribe(deviceMonitor6d, "presence", device6dHandler)}
 	if(monitor6dType == "Water"){subscribe(deviceMonitor6d, "water", device6dHandler)}
 	if(monitor6dType == "Light"){subscribe(deviceMonitor6d, "switch", device6dHandler)}
 	if(monitor6dType == "Switch"){subscribe(deviceMonitor6d, "switch", device6dHandler)}
 		if(monitor6dType == "Lock"){subscribe(deviceMonitor6d, "lock", device6dHandler)}
+		if(monitor6dType == "Motion"){subscribe(deviceMonitor6d, "motion", device6dHandler)}
 	if(monitor7aType == "Contact"){subscribe(deviceMonitor7a, "contact", device7aHandler)}
 	if(monitor7aType == "Presence"){subscribe(deviceMonitor7a, "presence", device7aHandler)}
 	if(monitor7aType == "Water"){subscribe(deviceMonitor7a, "water", device7aHandler)}
 	if(monitor7aType == "Light"){subscribe(deviceMonitor7a, "switch", device7aHandler)}
 	if(monitor7aType == "Switch"){subscribe(deviceMonitor7a, "switch", device7aHandler)}
 		if(monitor7aType == "Lock"){subscribe(deviceMonitor7a, "lock", device7aHandler)}
+		if(monitor7aType == "Motion"){subscribe(deviceMonitor7a, "motion", device7aHandler)}
 	if(monitor7bType == "Contact"){subscribe(deviceMonitor7b, "contact", device7bHandler)}
 	if(monitor7bType == "Presence"){subscribe(deviceMonitor7b, "presence", device7bHandler)}
 	if(monitor7bType == "Water"){subscribe(deviceMonitor7b, "water", device7bHandler)}
 	if(monitor7bType == "Light"){subscribe(deviceMonitor7b, "switch", device7bHandler)}
 	if(monitor7bType == "Switch"){subscribe(deviceMonitor7b, "switch", device7bHandler)}
 		if(monitor7bType == "Lock"){subscribe(deviceMonitor7b, "lock", device7bHandler)}
+		if(monitor7bType == "Motion"){subscribe(deviceMonitor7b, "motion", device7bHandler)}
 	if(monitor7cType == "Contact"){subscribe(deviceMonitor7c, "contact", device7cHandler)}
 	if(monitor7cType == "Presence"){subscribe(deviceMonitor7c, "presence", device7cHandler)}
 	if(monitor7cType == "Water"){subscribe(deviceMonitor7c, "water", device7cHandler)}
 	if(monitor7cType == "Light"){subscribe(deviceMonitor7c, "switch", device7cHandler)}
 	if(monitor7cType == "Switch"){subscribe(deviceMonitor7c, "switch", device7cHandler)}
 		if(monitor7cType == "Lock"){subscribe(deviceMonitor7c, "lock", device7cHandler)}
+		if(monitor7cType == "Motion"){subscribe(deviceMonitor7c, "motion", device7cHandler)}
 	if(monitor7dType == "Contact"){subscribe(deviceMonitor7d, "contact", device7dHandler)}
 	if(monitor7dType == "Presence"){subscribe(deviceMonitor7d, "presence", device7dHandler)}
 	if(monitor7dType == "Water"){subscribe(deviceMonitor7d, "water", device7dHandler)}
 	if(monitor7dType == "Light"){subscribe(deviceMonitor7d, "switch", device7dHandler)}
 	if(monitor7dType == "Switch"){subscribe(deviceMonitor7d, "switch", device7dHandler)}
 		if(monitor7dType == "Lock"){subscribe(deviceMonitor7d, "lock", device7dHandler)}
+		if(monitor7dType == "Motion"){subscribe(deviceMonitor7d, "motion", device7dHandler)}
 	if(monitor8aType == "Contact"){subscribe(deviceMonitor8a, "contact", device8aHandler)}
 	if(monitor8aType == "Presence"){subscribe(deviceMonitor8a, "presence", device8aHandler)}
 	if(monitor8aType == "Water"){subscribe(deviceMonitor8a, "water", device8aHandler)}
 	if(monitor8aType == "Light"){subscribe(deviceMonitor8a, "switch", device8aHandler)}
 	if(monitor8aType == "Switch"){subscribe(deviceMonitor8a, "switch", device8aHandler)}
 		if(monitor8aType == "Lock"){subscribe(deviceMonitor8a, "lock", device8aHandler)}
+		if(monitor8aType == "Motion"){subscribe(deviceMonitor8a, "motion", device8aHandler)}
 	if(monitor8bType == "Contact"){subscribe(deviceMonitor8b, "contact", device8bHandler)}
 	if(monitor8bType == "Presence"){subscribe(deviceMonitor8b, "presence", device8bHandler)}
 	if(monitor8bType == "Water"){subscribe(deviceMonitor8b, "water", device8bHandler)}
 	if(monitor8bType == "Light"){subscribe(deviceMonitor8b, "switch", device8bHandler)}
 	if(monitor8bType == "Switch"){subscribe(deviceMonitor8b, "switch", device8bHandler)}
 		if(monitor8bType == "Lock"){subscribe(deviceMonitor8b, "lock", device8bHandler)}
+		if(monitor8bType == "Motion"){subscribe(deviceMonitor8b, "motion", device8bHandler)}
 	if(monitor8cType == "Contact"){subscribe(deviceMonitor8c, "contact", device8cHandler)}
 	if(monitor8cType == "Presence"){subscribe(deviceMonitor8c, "presence", device8cHandler)}
 	if(monitor8cType == "Water"){subscribe(deviceMonitor8c, "water", device8cHandler)}
 	if(monitor8cType == "Light"){subscribe(deviceMonitor8c, "switch", device8cHandler)}
 	if(monitor8cType == "Switch"){subscribe(deviceMonitor8c, "switch", device8cHandler)}
 		if(monitor8cType == "Lock"){subscribe(deviceMonitor8c, "lock", device8cHandler)}
+		if(monitor8cType == "Motion"){subscribe(deviceMonitor8c, "motion", device8cHandler)}
 	if(monitor8dType == "Contact"){subscribe(deviceMonitor8d, "contact", device8dHandler)}
 	if(monitor8dType == "Presence"){subscribe(deviceMonitor8d, "presence", device8dHandler)}
 	if(monitor8dType == "Water"){subscribe(deviceMonitor8d, "water", device8dHandler)}
 	if(monitor8dType == "Light"){subscribe(deviceMonitor8d, "switch", device8dHandler)}
 	if(monitor8dType == "Switch"){subscribe(deviceMonitor8d, "switch", device8dHandler)}
 		if(monitor8dType == "Lock"){subscribe(deviceMonitor8d, "lock", device8dHandler)}
+		if(monitor8dType == "Motion"){subscribe(deviceMonitor8d, "motion", device8dHandler)}
 }
 
 
@@ -437,7 +469,20 @@ def iconConfig() {
 		input "imageLockHeight", "number", title: "Enter Height", required: true, defaultValue: 25, multiple: false	
 		
 		}	
-	}	   	   
+	}
+		   
+	section (){
+		input "motion", "bool", title: "Configure Motion Sensor Icons", required:true, defaultValue: false, submitOnChange: true
+	}
+		if(motion){
+	section (){		
+		input "imageMotionActive", "text", title: "Motion Image URL (Active)", required: true, multiple: false	
+		input "imageMotionInactive", "text", title: "Motion Image URL (Inactive)", required: true, multiple: false
+		input "imageMotionWidth", "number", title: "Enter Width", required: true,  defaultValue: 25, multiple: false	
+		input "imageMotionHeight", "number", title: "Enter Height", required: true,  defaultValue: 25, multiple: false		
+		
+		}
+	}	   
 	
   }
 }
@@ -591,7 +636,8 @@ def checkMonitorType(){
 		"Water", 
 		"Light",
 		"Lock",
-		"Switch"
+		"Switch",
+		"Motion"
 ]  
     
     return listInput2
@@ -1236,6 +1282,8 @@ def device1aHandler(evt){
 	if(state.dev1a == "not present"){state.icon1a = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev1a == "locked"){state.icon1a = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev1a == "unlocked"){state.icon1a = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev1a == "active"){state.icon1a = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev1a == "inactive"){state.icon1a = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon1a = $state.icon1a")
 	sendLines()
 }
@@ -1254,6 +1302,8 @@ def device1bHandler(evt){
 	if(state.dev1b == "not present"){state.icon1b = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev1b == "locked"){state.icon1b = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev1b == "unlocked"){state.icon1b = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev1b == "active"){state.icon1b = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev1b == "inactive"){state.icon1b = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon1b = $state.icon1b")
 	sendLines()
 }
@@ -1272,6 +1322,8 @@ def device1cHandler(evt){
 	if(state.dev1c == "not present"){state.icon1c = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev1c == "locked"){state.icon1c = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev1c == "unlocked"){state.icon1c = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev1c == "active"){state.icon1c = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev1c == "inactive"){state.icon1c = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon1c = $state.icon1c")
 	sendLines()
 }
@@ -1290,6 +1342,8 @@ def device1dHandler(evt){
 	if(state.dev1d == "not present"){state.icon1d = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev1d == "locked"){state.icon1d = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev1d == "unlocked"){state.icon1d = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev1d == "active"){state.icon1d = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev1d == "inactive"){state.icon1d = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon1d = $state.icon1d")
 	sendLines()
 }
@@ -1308,6 +1362,8 @@ def device2aHandler(evt){
 	if(state.dev2a == "not present"){state.icon2a = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev2a == "locked"){state.icon2a = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev2a == "unlocked"){state.icon2a = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev2a == "active"){state.icon2a = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev2a == "inactive"){state.icon2a = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon2a = $state.icon2a")
 	sendLines()
 }
@@ -1326,6 +1382,8 @@ def device2bHandler(evt){
 	if(state.dev2b == "not present"){state.icon2b = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev2b == "locked"){state.icon2b = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev2b == "unlocked"){state.icon2b = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev2b == "active"){state.icon2b = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev2b == "inactive"){state.icon2b = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon2b = $state.icon2b")
 	sendLines()
 }
@@ -1344,6 +1402,8 @@ def device2cHandler(evt){
 	if(state.dev2c == "not present"){state.icon2c = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev2c == "locked"){state.icon2c = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev2c == "unlocked"){state.icon2c = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev2c == "active"){state.icon2c = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev2c == "inactive"){state.icon2c = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon2c = $state.icon2c")
 	sendLines()
 }
@@ -1362,6 +1422,8 @@ def device2dHandler(evt){
 	if(state.dev2d == "not present"){state.icon2d = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev2d == "locked"){state.icon2d = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev2d == "unlocked"){state.icon2d = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev2d == "active"){state.icon2d = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev2d == "inactive"){state.icon2d = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon2d = $state.icon2d")
 	sendLines()
 }
@@ -1381,6 +1443,8 @@ def device3aHandler(evt){
 	if(state.dev3a == "not present"){state.icon3a = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev3a == "locked"){state.icon3a = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev3a == "unlocked"){state.icon3a = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev3a == "active"){state.icon3a = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev3a == "inactive"){state.icon3a = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon3a = $state.icon3a")
 	sendLines()
 }
@@ -1399,6 +1463,8 @@ def device3bHandler(evt){
 	if(state.dev3b == "not present"){state.icon3b = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev3b == "locked"){state.icon3b = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev3b == "unlocked"){state.icon3b = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev3b == "active"){state.icon3b = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev3b == "inactive"){state.icon3b = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon3b = $state.icon3b")
 	sendLines()
 }
@@ -1417,6 +1483,8 @@ def device3cHandler(evt){
 	if(state.dev3c == "not present"){state.icon3c = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev3c == "locked"){state.icon3c = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev3c == "unlocked"){state.icon3c = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev3c == "active"){state.icon3c = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev3c == "inactive"){state.icon3c = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon3c = $state.icon3c")
 	sendLines()
 }
@@ -1435,6 +1503,8 @@ def device3dHandler(evt){
 	if(state.dev3d == "not present"){state.icon3d = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev3d == "locked"){state.icon3d = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev3d == "unlocked"){state.icon3d = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev3d == "active"){state.icon3d = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev3d == "inactive"){state.icon3d = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon3d = $state.icon3d")
 	sendLines()
 }
@@ -1454,6 +1524,8 @@ def device4aHandler(evt){
 	if(state.dev4a == "not present"){state.icon4a = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev4a == "locked"){state.icon4a = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev4a == "unlocked"){state.icon4a = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev4a == "active"){state.icon4a = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev4a == "inactive"){state.icon4a = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon4a = $state.icon4a")
 	sendLines()
 }
@@ -1490,6 +1562,8 @@ def device4cHandler(evt){
 	if(state.dev4c == "not present"){state.icon4c = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev4c == "locked"){state.icon4c = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev4c == "unlocked"){state.icon4c = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev4c == "active"){state.icon4c = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev4c == "inactive"){state.icon4c = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon4c = $state.icon4c")
 	sendLines()
 }
@@ -1508,6 +1582,8 @@ def device4dHandler(evt){
 	if(state.dev4d == "not present"){state.icon4d = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev4d == "locked"){state.icon4d = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev4d == "unlocked"){state.icon4d = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev4d == "active"){state.icon4d = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev4d == "inactive"){state.icon4d = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon4d = $state.icon4d")
 	sendLines()
 }
@@ -1527,6 +1603,8 @@ def device5aHandler(evt){
 	if(state.dev5a == "not present"){state.icon5a = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev5a == "locked"){state.icon5a = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev5a == "unlocked"){state.icon5a = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev5a == "active"){state.icon5a = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev5a == "inactive"){state.icon5a = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon5a = $state.icon5a")
 	sendLines()
 }
@@ -1545,6 +1623,8 @@ def device5bHandler(evt){
 	if(state.dev5b == "not present"){state.icon5b = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev5b == "locked"){state.icon5b = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev5b == "unlocked"){state.icon5b = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev5b == "active"){state.icon5b = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev5b == "inactive"){state.icon5b = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon5b = $state.icon5b")
 	sendLines()
 }
@@ -1563,6 +1643,8 @@ def device5cHandler(evt){
 	if(state.dev5c == "not present"){state.icon5c = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev5c == "locked"){state.icon5c = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev5c == "unlocked"){state.icon5c = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev5c == "active"){state.icon5c = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev5c == "inactive"){state.icon5c = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon5c = $state.icon5c")
 	sendLines()
 }
@@ -1581,6 +1663,8 @@ def device5dHandler(evt){
 	if(state.dev5d == "not present"){state.icon5d = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev5d == "locked"){state.icon5d = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev5d == "unlocked"){state.icon5d = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev5d == "active"){state.icon5d = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev5d == "inactive"){state.icon5d = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon5d = $state.icon5d")
 	sendLines()
 }
@@ -1600,6 +1684,8 @@ def device6aHandler(evt){
 	if(state.dev6a == "not present"){state.icon6a = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev6a == "locked"){state.icon6a = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev6a == "unlocked"){state.icon6a = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev6a == "active"){state.icon6a = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev6a == "inactive"){state.icon6a = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon6a = $state.icon6a")
 	sendLines()
 }
@@ -1618,6 +1704,8 @@ def device6bHandler(evt){
 	if(state.dev6b == "not present"){state.icon6b = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev6b == "locked"){state.icon6b = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev6b == "unlocked"){state.icon6b = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev6b == "active"){state.icon6b = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev6b == "inactive"){state.icon6b = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon6b = $state.icon6b")
 	sendLines()
 }
@@ -1636,6 +1724,8 @@ def device6cHandler(evt){
 	if(state.dev6c == "not present"){state.icon6c = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev6c == "locked"){state.icon6c = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev6c == "unlocked"){state.icon6c = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev6c == "active"){state.icon6c = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev6c == "inactive"){state.icon6c = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon6c = $state.icon6c")
 	sendLines()
 }
@@ -1654,6 +1744,8 @@ def device6dHandler(evt){
 	if(state.dev6d == "not present"){state.icon6d = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev6d == "locked"){state.icon6d = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev6d == "unlocked"){state.icon6d = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev6d == "active"){state.icon6d = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev6d == "inactive"){state.icon6d = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon6d = $state.icon6d")
 	sendLines()
 }
@@ -1673,6 +1765,8 @@ def device7aHandler(evt){
 	if(state.dev7a == "not present"){state.icon7a = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev7a == "locked"){state.icon7a = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev7a == "unlocked"){state.icon7a = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev7a == "active"){state.icon7a = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev7a == "inactive"){state.icon7a = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon7a = $state.icon7a")
 	sendLines()
 }
@@ -1691,6 +1785,8 @@ def device7bHandler(evt){
 	if(state.dev7b == "not present"){state.icon7b = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev7b == "locked"){state.icon7b = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev7b == "unlocked"){state.icon7b = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev7b == "active"){state.icon7b = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev7b == "inactive"){state.icon7b = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon7b = $state.icon7b")
 	sendLines()
 }
@@ -1709,6 +1805,8 @@ def device7cHandler(evt){
 	if(state.dev7c == "not present"){state.icon7c = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev7c == "locked"){state.icon7c = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev7c == "unlocked"){state.icon7c = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev7c == "active"){state.icon7c = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev7c == "inactive"){state.icon7c = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon7c = $state.icon7c")
 	sendLines()
 }
@@ -1727,6 +1825,8 @@ def device7dHandler(evt){
 	if(state.dev7d == "not present"){state.icon7d = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev7d == "locked"){state.icon7d = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev7d == "unlocked"){state.icon7d = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev7d == "active"){state.icon7d = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev7d == "inactive"){state.icon7d = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon7d = $state.icon7d")
 	sendLines()
 }
@@ -1746,6 +1846,8 @@ def device8aHandler(evt){
 	if(state.dev8a == "not present"){state.icon8a = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev8a == "locked"){state.icon8a = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev8a == "unlocked"){state.icon8a = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev8a == "active"){state.icon8a = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev8a == "inactive"){state.icon8a = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon8a = $state.icon8a")
 	sendLines()
 }
@@ -1764,6 +1866,8 @@ def device8bHandler(evt){
 	if(state.dev8b == "not present"){state.icon8b = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev8b == "locked"){state.icon8b = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev8b == "unlocked"){state.icon8b = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev8b == "active"){state.icon8b = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev8b == "inactive"){state.icon8b = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon8b = $state.icon8b")
 	sendLines()
 }
@@ -1782,6 +1886,8 @@ def device8cHandler(evt){
 	if(state.dev8c == "not present"){state.icon8c = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev8c == "locked"){state.icon8c = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev8c == "unlocked"){state.icon8c = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev8c == "active"){state.icon8c = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev8c == "inactive"){state.icon8c = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon8c = $state.icon8c")
 	sendLines()
 }
@@ -1800,6 +1906,8 @@ def device8dHandler(evt){
 	if(state.dev8d == "not present"){state.icon8d = "<img src='" +imageNotPresent +"' width='" +imagePresentWidth +"' height='" +imagePresentHeight +"'>"}
 	if(state.dev8d == "locked"){state.icon8d = "<img src='" +imageLockLocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight +"'>"}
 	if(state.dev8d == "unlocked"){state.icon8d = "<img src='" +imageLockUnlocked +"' width='" +imageLockWidth +"' height='" +imageLockHeight+"'>"}
+	if(state.dev8d == "active"){state.icon8d = "<img src='" +imageMotionActive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
+	if(state.dev8d == "inactive"){state.icon8d = "<img src='" +imageMotionInactive +"' width='" +imageMotionWidth +"' height='" +imageMotionHeight+"'>"}
 	LOGDEBUG("state.icon8d = $state.icon8d")
 	sendLines()
 }
@@ -2499,7 +2607,7 @@ def setDefaults(){
 
     
 def setVersion(){
-		state.version = "2.3.2"	 
+		state.version = "2.4.0"	 
 		state.InternalName = "SuperTileDisplay"
     	state.ExternalName = "Super Tile Display"
 		state.preCheckMessage = "This app was designed to use a special Virtual Display device  to display data on a dashboard tile"
