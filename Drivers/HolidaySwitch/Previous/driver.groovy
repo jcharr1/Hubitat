@@ -13,12 +13,9 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *  Last Update 10/05/2019
+ *  Last Update 09/05/2019
  *
  *
- *
- *  V1.2.0 - Added Override feature for use with Holiday Switch app
- *  V1.1.0 - Added ability to reverse switching
  *  V1.0.0 - POC
  *
  */
@@ -26,8 +23,8 @@
 metadata {
     definition (name: "HolidaySwitch", namespace: "Cobra", author: "Andrew Parker", importUrl: "https://raw.githubusercontent.com/CobraVmax/Hubitat/master/Drivers/HolidaySwitch/driver.groovy") {
         capability "Switch"
-        command "OverrideOn", ["string"] 
-		command "OverrideOff" 
+//      command "OverrideOn", ["string"] // ready for the app
+//		command "OverrideOff" // ready for the app
         attribute  "override", "string"
 		attribute  "holiday", "string"
     	attribute  " ", "string"
@@ -44,7 +41,6 @@ metadata {
 		if(type1 == "Religious"){
 			input "type2", "enum", title: "Select Holiday Type", required: true, defaultValue: "National", options: [ "Buddhism", "Christian", "Hinduism", "Muslim", "Hebrew"]
 		}
-			input name: "reverse1", type: "bool", title: "Reverse Switching (Switch Off when there is a holiday)", defaultValue: false
         	input name: "logInfo", type: "bool", title: "Enable informational logging", defaultValue: false
         	input name: "logEnable", type: "bool", title: "Enable debug logging", defaultValue: false
            
@@ -56,7 +52,6 @@ metadata {
 def updated() {
 //	state.clear()
 	state.override = false
-	state.data1 = null
     log.info "updated..."
     log.info "debug logging is: ${logEnable == true}"
 	log.info "info logging is: ${logInfo == true}"
@@ -77,48 +72,30 @@ def logsOff() {
 }
 
 def on() {
-	state.reverse = reverse1
-	if(state.data1 == null){state.data1 = " "}
-	if(state.reverse == false){
+	if(state.data1 == null){state.data1 = "Holiday Title Not Defined"}
 	sendEvent(name: "switch", value: "on")
 	sendEvent(name: "holiday", value: state.data1)
 	if(logInfo){ log.info "Switch On"}
-	}
-	if(state.reverse == true){
-	sendEvent(name: "switch", value: "off")
-	sendEvent(name: "holiday", value: state.data1)
-	if(logInfo){ log.info "Switch Off"}
-	}
-	
+
 }
 
 def off() {
-	state.reverse = reverse1
-	if(state.data1 == null){state.data1 = " "}
-	if(state.reverse == false){
 	sendEvent(name: "switch", value: "off")
 	sendEvent(name: "holiday", value: " ")
 	if(logInfo){ log.info "Switch Off"}
-	}
-	if(state.reverse == true){
-	sendEvent(name: "switch", value: "on")
-	sendEvent(name: "holiday", value: state.data1)
-	if(logInfo){ log.info "Switch On"}
-	}
-	
+
 }
 
 def OverrideOn(evt){
 	state.data1 = evt
+	if(state.data1 == null){state.data1 = "Holiday Title Not Defined"}
 	state.override = true
-	on()
-
+on()
 }	
 def OverrideOff(){
-	state.data1 = evt
 	state.override = false
 	checkHolidays()
-
+//	off()
 }	
 
 def checkHolidays(){
@@ -164,13 +141,13 @@ if(state.override == false){
 			   }
 			}
 			if(type1 != "Religious"){
-			state.data1 = resp1.data.response.holidays.name[0] 
+			state.data1 = resp1.data.response.holidays.name[0]           	
 			if(state.data1){on()}
 			if(!state.data1){
 				off()
 				if(logEnable){ log.debug "Not today"}}
 			   }
-			
+			   
 		}
 	
  }	  catch (e) {
@@ -178,7 +155,7 @@ if(state.override == false){
     }
 	}
 	else{
-		if(logInfo){ log.info "Override: Not checking for national holidays"}}
+		if(logInfo){ log.info "Override is on so not checking for national holidays"}}
 }
 
 
@@ -236,7 +213,7 @@ def updateCheck(){
 }
 
 def setVersion(){
-    state.version = "1.2.0"
+    state.version = "1.0.0"
     state.InternalName = "HolidaySwitchDriver"
    	state.CobraAppCheck = "holidayswitchdriver.json"
     sendEvent(name: "DriverAuthor", value: "Cobra", isStateChange: true)
