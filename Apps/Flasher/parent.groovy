@@ -1,41 +1,39 @@
 /**
- *  Design Usage:
- *  This is the 'Parent' app for 'Flasher' 
+ * Please Note: This app is NOT released under any open-source license.
+ * Please be sure to read the license agreement before installing this code.
  *
+ * Copyright 2019 Andrew Parker, Parker IT North East Limited
  *
- *  Copyright 2018 Andrew Parker
- *  
- *  This SmartApp is free!
+ * This software package is created and licensed by Parker IT North East Limited. A United Kingdom, Limited Company.
  *
- *  Donations to support development efforts are accepted via: 
+ * This software, along with associated elements, including but not limited to online and/or electronic documentation are
+ * protected by international laws and treaties governing intellectual property rights.
  *
- *  Paypal at: https://www.paypal.me/smartcobra
- *  
+ * This software has been licensed to you. All rights are reserved. You may use and/or modify the software.
+ * You may not sublicense or distribute this software or any modifications to third parties in any way.
  *
- *  I'm very happy for you to use this app without a donation, but if you find it useful
- *  then it would be nice to get a 'shout out' on the forum! -  @Cobra
- *  Have an idea to make this app better?  - Please let me know :)
+ * You may not distribute any part of this software without the author's express permission
  *
- *  
+ * By downloading, installing, and/or executing this software you hereby agree to the terms and conditions set forth in the Software license agreement.
+ * This agreement can be found on-line at: http://hubitat.uk/Software_License_Agreement.txt
+ * 
+ * Hubitat is the trademark and intellectual property of Hubitat Inc. 
+ * Parker IT North East Limited has no formal or informal affiliations or relationships with Hubitat.
  *
- *-------------------------------------------------------------------------------------------------------------------
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License. You may obtain a copy of the License at:
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
- *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
- *  for the specific language governing permissions and limitations under the License.
- *-------------------------------------------------------------------------------------------------------------------
- *
- *  If modifying this project, please keep the above header intact and add your comments/credits below - Thank you! -  @Cobra
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License Agreement
+ * for the specific language governing permissions and limitations under the License.
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 04/12/2018
+ *  Last Update: 10/06/2019
  *
  *  Changes:
+ *
+ *
+ *  V2.0.0 - Removed default connection to the Cobra Apps container (Line 52)
+ *           Update check is now randomised
+ *           This software is released under a new license agreement.
  *
  *  V1.3.0 - Added disable apps code
  *  V1.2.0 - Moved update checks to parent
@@ -52,7 +50,7 @@ definition(
     author: "Andrew Parker",
     description: "Parent App for Flasher ChildApps ",
     
-     parent: "Cobra:Cobra Apps",  // ******** Comment this out if not using the 'Cobra Apps' container  ***************
+//     parent: "Cobra:Cobra Apps",  // ******** Remove 'Comment' (//) if using the 'Cobra Apps' container  ***************
     
     category: "Convenience",
     iconUrl: "",
@@ -79,7 +77,8 @@ def initialize() {
     }    
 }
 def mainPage() {
-    dynamicPage(name: "mainPage") {   
+    dynamicPage(name: "mainPage") {  
+	setVersion()
 	installCheck()
 	if(state.appInstalled == 'COMPLETE'){
 	display()
@@ -93,9 +92,12 @@ def mainPage() {
 
 def version(){
     resetBtnName()
-    schedule("0 0 9 ? * FRI *", updateCheck) //  Check for updates at 9am every Friday
     updateCheck()  
     checkButtons()
+	def random = new Random()
+    Integer randomHour = random.nextInt(18-10) + 10
+    Integer randomDayOfWeek = random.nextInt(7-1) + 1 // 1 to 7
+    schedule("0 0 " + randomHour + " ? * " + randomDayOfWeek, updateCheck) 
    
 }
 
@@ -103,7 +105,8 @@ def version(){
 def installCheck(){         
 	state.appInstalled = app.getInstallationState() 
 	if(state.appInstalled != 'COMPLETE'){
-	section{paragraph "Please hit 'Done' to load this app into the Cobra Apps container"}
+	section{paragraph "Please hit 'Done' to install this app<br><br>$state.agreementNotice"}
+	
 	  }
 	else{
  //      log.info "Parent Installed OK"  
@@ -167,6 +170,7 @@ def stopAll(){
 	}
 }
 
+/**
 def stopAllParent(stopNowCobra, msgCobra){
 	state.allDisabled1 = stopNowCobra
 	def msgNowCobra = msgCobra
@@ -180,6 +184,8 @@ def stopAllParent(stopNowCobra, msgCobra){
 		
 	}
 }	
+
+*/
 
 
 def checkButtons(){
@@ -247,6 +253,11 @@ def updateCheck(){
             state.updateMsg = "There is a new version of '$state.ExternalName' available (Version: $newVerRaw)"
             pushOverUpdate(state.updateMsg)
        		} 
+		else if(currentVer > newVer){
+        	state.status = "You are using a BETA ($state.version) - Release Version: $newVerRaw"
+        	log.warn "** <b>$state.status</b>) **"
+        	state.UpdateInfo = "N/A"
+		}	
 		else{ 
       		state.status = "Current"
        		log.info("You are using the current version of this app")
@@ -292,10 +303,12 @@ def pushOverUpdate(inMsg){
 
 
 def setVersion(){
-		state.version = "1.3.0"	 
+		state.version = "2.0.0"	 
 		state.InternalName = "FlasherParent" 
     	state.CobraAppCheck = "flasher.json"
 		state.ExternalName = " Flasher Parent"
+		state.agreementNotice = "By downloading, installing, and/or executing this software you hereby agree to the terms and conditions set forth in the Software license agreement.<br>This agreement can be found on-line at: http://hubitat.uk/Software_License_Agreement.txt"
+    	
 }
 
 

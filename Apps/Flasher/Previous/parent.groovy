@@ -33,12 +33,13 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 01/11/2018
+ *  Last Update: 04/12/2018
  *
  *  Changes:
  *
- * 
- *
+ *  V1.3.0 - Added disable apps code
+ *  V1.2.0 - Moved update checks to parent
+ *  V1.1.0 - Added revised updated checking
  *  V1.0.0 - POC
  *
  */
@@ -65,207 +66,173 @@ definition(
 
 
 
-preferences {
-	
-     page name: "mainPage", title: "", install: true, uninstall: true
-     
-} 
-
-
-def installed() {
-      initialize()
-}
-
-def updated() {
-    
-    unsubscribe()
-    initialize()
-}
-
+preferences {page name: "mainPage", title: "", install: true, uninstall: true}
+def installed() {initialize()}
+def updated() {initialize()}
 def initialize() {
-    setDefaults()
+    unsubscribe()
     version()
-    logCheck()
-    log.info "Initialised with settings: ${settings}"
-   
+    log.debug "Initialised with settings: ${settings}"
     log.info "There are ${childApps.size()} child apps"
     childApps.each {child ->
     log.info "Child app: ${child.label}"
-    }
-    
+    }    
 }
-
-
 def mainPage() {
-    dynamicPage(name: "mainPage") {
-      installCheck()
-        
-if(state.appInstalled == 'COMPLETE'){
-			display()
-
-  section (""){
-		app(name: "flasherApp", appName: "Flasher Child", namespace: "Cobra", title: "<b>Add a new automation</b>", multiple: true)
-     
-
-            }
- section(){input "debugMode", "bool", title: "Enable logging", required: true, defaultValue: false}
- 
+    dynamicPage(name: "mainPage") {   
+	installCheck()
+	if(state.appInstalled == 'COMPLETE'){
+	display()
+	section (){app(name: "flasherApp", appName: "Flasher Child", namespace: "Cobra", title: "<b>Add a new automation</b>", multiple: true)}	
+	displayDisable()
 	}
   }
 }
 
+
+
+def version(){
+    resetBtnName()
+    schedule("0 0 9 ? * FRI *", updateCheck) //  Check for updates at 9am every Friday
+    updateCheck()  
+    checkButtons()
+   
+}
 
 
 def installCheck(){         
-   state.appInstalled = app.getInstallationState() 
-  if(state.appInstalled != 'COMPLETE'){
-section{paragraph "Please hit 'Done' to install 'Flasher'"}
-  }
-    else{
- //       log.info "Parent Installed OK"
+	state.appInstalled = app.getInstallationState() 
+	if(state.appInstalled != 'COMPLETE'){
+	section{paragraph "Please hit 'Done' to load this app into the Cobra Apps container"}
+	  }
+	else{
+ //      log.info "Parent Installed OK"  
     }
 	}
 
-def version(){
-	schedule("0 0 9 ? * FRI *", updateCheck) //  Check for updates at 9am every Friday
- 
-    
-   
-    
-}
-
-
-// define debug action
-def logCheck(){
-state.checkLog = debugMode
-if(state.checkLog == true){
-log.info "All Logging Enabled"
-}
-else if(state.checkLog == false){
-log.info "Further Logging Disabled"
-}
-
-}
-def LOGDEBUG(txt){
-    try {
-    	if (settings.debugMode) { log.debug("${app.label.replace(" ","_").toUpperCase()}  (App Version: ${state.version}) - ${txt}") }
-    } catch(ex) {
-    	log.error("LOGDEBUG unable to output requested data!")
-    }
-}
-
 def display(){
-    setDefaults()
-  	
-    
-	if(state.status){
-	section{paragraph "<img src='http://update.hubitat.uk/icons/cobra3.png''</img> Version: $state.version <br><font face='Lucida Handwriting'>$state.Copyright </font>"}
-       
-        }
-   
-
-    if(state.status != "<b>** This app is no longer supported by $state.author  **</b>"){
-     section(){ input "updateBtn", "button", title: "$state.btnName"}
-    }
-    
- 
-       
-    if(state.status != "Current"){
-	section{ 
-	paragraph "<b>Update Info:</b> <BR>$state.UpdateInfo <BR>$state.updateURI"
-     }
-    }
-	section(" ") {
-      input "updateNotification", "bool", title: "Send a 'Pushover' message when an update is available", required: true, defaultValue: false, submitOnChange: true 
-      if(updateNotification == true){ input "speaker", "capability.speechSynthesis", title: "PushOver Device", required: true, multiple: true}
-    }
-    
-
+	if(state.status){section(){paragraph "<img src='http://update.hubitat.uk/icons/cobra3.png''</img> Version: $state.version <br><font face='Lucida Handwriting'>$state.Copyright </font>"}}
+	if(state.status != "<b>** This app is no longer supported by $state.author  **</b>"){section(){input "updateBtn", "button", title: "$state.btnName"}}
+	if(state.status != "Current"){
+		section(){paragraph "<hr><b>Updated: </b><i>$state.Comment</i><br><br><i>Changes in version $state.newver</i><br>$state.UpdateInfo<hr><b>Update URL: </b><font color = 'red'> $state.updateURI</font><hr>"}
+		}
+		section(){
+		input "updateNotification", "bool", title: "Send a 'Pushover' message when an update is available for either the parent or the child app", required: true, defaultValue: false, submitOnChange: true 
+		if(updateNotification == true){ input "speakerUpdate", "capability.speechSynthesis", title: "PushOver Device", required: true, multiple: true}
+		}
+	
 }
+
+def displayDisable(){
+	if(app.label){
+	section("<hr>"){
+		input "disableAll1", "bool", title: "Disable <b>all</b> <i>'${app.label}'</i> child apps", required: true, defaultValue: false, submitOnChange: true
+		state.allDisabled1 = disableAll1
+		stopAll()
+	}
+	section("<hr>"){}
+	}
+	else{
+	section("<hr>"){
+		input "disableAll1", "bool", title: "Disable <b><i>ALL</i></b> child apps ", required: true, defaultValue: false, submitOnChange: true
+		state.allDisabled1 = disableAll1
+		stopAll()
+	}
+	section("<hr>"){}
+	}
+	
+}
+
+
+
+
+def stopAll(){
+	
+	if(state.allDisabled1 == true) {
+	log.debug "state.allDisabled1 = TRUE"
+	state.msg2 = "Disabled by parent"
+	childApps.each { child ->
+	child.stopAllChildren(state.allDisabled1, state.msg2)
+	log.warn "Disabling ChildApp: $child.label"
+	}
+	}	
+	
+	if(state.allDisabled1 == false){
+	log.debug "state.allDisabled1 = FALSE"
+	state.msg3 = "Enabled by parent"
+	childApps.each { child ->
+	child.stopAllChildren(state.allDisabled1, state.msg3)	
+	log.trace "Enabling ChildApp: $child.label "
+	}
+	}
+}
+
+def stopAllParent(stopNowCobra, msgCobra){
+	state.allDisabled1 = stopNowCobra
+	def msgNowCobra = msgCobra
+	log.info " Message from Cobra Apps -  Disable = $stopNowCobra"
+	childApps.each { child ->
+	child.stopAllChildren(state.allDisabled1, msgNowCobra)
+	//	if(stopNowCobra == true){log.warn "Disabling ChildApp: $child.label"}
+	//	if(stopNowCobra == false){log.trace "Enabling ChildApp: $child.label "}
+		
+		
+		
+	}
+}	
+
 
 def checkButtons(){
-    LOGDEBUG("Running checkButtons")
+//    log.debug "Running checkButtons"
     appButtonHandler("updateBtn")
 }
 
 
 def appButtonHandler(btn){
-    state.btnCall = btn
-    if(state.btnCall == "updateBtn"){
-       log.info "Checking for updates now..."
+	state.btnCall = btn
+	if(state.btnCall == "updateBtn"){
+        log.info "Checking for updates now..."
         updateCheck()
         pause(3000)
-  		state.btnName = state.newBtn
+	state.btnName = state.newBtn
         runIn(2, resetBtnName)
     }
-    if(state.btnCall == "updateBtn1"){
-    state.btnName1 = "Click Here" 
-    httpGet("https://github.com/CobraVmax/Hubitat/tree/master/Apps' target='_blank")
-    }
     
-}   
+}  
+ 
 def resetBtnName(){
-//    log.info "Resetting Update Button Name"
-    if(state.status != "Current"){
+//    log.info "Resetting Button"	
+	if(state.status != "Current"){
 	state.btnName = state.newBtn
-    }
-    else{
- state.btnName = "Check For Update" 
-    }
+	    }
+	else{
+ 	state.btnName = "Check For Update" 
+	}
 }    
     
-def pushOverNow(inMsg){
-    if(updateNotification == true){  
-     newMessage = inMsg
-  log.info "Message = $newMessage " 
-     state.msg1 = '[L]' + newMessage
-	speaker.speak(state.msg1)
-    }
-}
-
-def pauseOrNot(){
-LOGDEBUG(" Calling 'pauseOrNot'...")
-    state.pauseNow = pause1
-        if(state.pauseNow == true){
-            state.pauseApp = true
-            if(app.label){
-            if(app.label.contains('red')){
-                log.warn "Paused"}
-            else{app.updateLabel(app.label + ("<font color = 'red'> (Paused) </font>" ))
-              LOGDEBUG("App Paused - state.pauseApp = $state.pauseApp ")   
-                }
-    
-            }
-        }
-    
-     if(state.pauseNow == false){
-         state.pauseApp = false
-         if(app.label){
-     if(app.label.contains('red')){ app.updateLabel(app.label.minus("<font color = 'red'> (Paused) </font>" ))
-     LOGDEBUG("App Released - state.pauseApp = $state.pauseApp ")                          
-                                  }
-         }
-  }    
-    
-}
 
 
 def updateCheck(){
     setVersion()
-	def paramsUD = [uri: "http://update.hubitat.uk/cobra.json"]
+    def paramsUD = [uri: "http://update.hubitat.uk/json/${state.CobraAppCheck}"]
+    
        	try {
         httpGet(paramsUD) { respUD ->
- //  log.warn " Version Checking - Response Data: ${respUD.data}"   // Troubleshooting Debug Code 
+//  log.warn " Version Checking - Response Data: ${respUD.data}"   // Troubleshooting Debug Code 
        		def copyrightRead = (respUD.data.copyright)
        		state.Copyright = copyrightRead
+            def commentRead = (respUD.data.Comment)
+       		state.Comment = commentRead
+
             def updateUri = (respUD.data.versions.UpdateInfo.GithubFiles.(state.InternalName))
             state.updateURI = updateUri   
             
             def newVerRaw = (respUD.data.versions.Application.(state.InternalName))
+            state.newver = newVerRaw
             def newVer = (respUD.data.versions.Application.(state.InternalName).replace(".", ""))
        		def currentVer = state.version.replace(".", "")
       		state.UpdateInfo = (respUD.data.versions.UpdateInfo.Application.(state.InternalName))
-                state.author = (respUD.data.author)
+            state.author = (respUD.data.author)
            
 		if(newVer == "NLS"){
             state.status = "<b>** This app is no longer supported by $state.author  **</b>"  
@@ -273,16 +240,16 @@ def updateCheck(){
             
       		}           
 		else if(currentVer < newVer){
-        	state.status = "<b>New Version Available (Version: $newVerRaw)</b>"
+        	state.status = "<b>New Version Available ($newVerRaw)</b>"
         	log.warn "** There is a newer version of this app available  (Version: $newVerRaw) **"
-        	log.warn "** $state.UpdateInfo **"
+        	log.warn " Update: $state.UpdateInfo "
              state.newBtn = state.status
-            def updateMsg = "There is a new version of '$state.ExternalName' available (Version: $newVerRaw)"
-            pushOverNow(updateMsg)
+            state.updateMsg = "There is a new version of '$state.ExternalName' available (Version: $newVerRaw)"
+            pushOverUpdate(state.updateMsg)
        		} 
 		else{ 
       		state.status = "Current"
-       		log.info "You are using the current version of this app"
+       		log.info("You are using the current version of this app")
        		}
       					}
         	} 
@@ -300,25 +267,40 @@ def updateCheck(){
         
 }
 
+def childUpdate(set, msg){
+	if(state.msgDone == false){
+	state.childUpdate = set.value
+	state.upMsg = msg.toString()
+	if(state.childUpdate == true){
+	pushOverUpdate(state.upMsg)	
+	state.msgDone = true	
+			}	
+		}
+	else{
+//		log.info "Message already sent - Not able to send again today"
+	    }		
+}
+def resetMsg(){state.msgDone = false}
+def pushOverUpdate(inMsg){
+    if(updateNotification == true){  
+    newMessage = inMsg
+   log.debug"PushOver Message = $newMessage "  
+    state.msg1 = '[L]' + newMessage
+    speakerUpdate.speak(state.msg1)
+    }
+}
 
 
 def setVersion(){
-		state.version = "1.0.0"	 
-		state.InternalName = "Flasherparent" 
-    	state.ExternalName = "Flasher Parent"
+		state.version = "1.3.0"	 
+		state.InternalName = "FlasherParent" 
+    	state.CobraAppCheck = "flasher.json"
+		state.ExternalName = " Flasher Parent"
 }
 
-def setDefaults(){
-    log.info "Initialising defaults..." 
-    checkButtons()
-    resetBtnName()
- 
-
- // add any further default settings below here               
- 
 
 
-}
+
 
 
 

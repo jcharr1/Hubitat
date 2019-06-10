@@ -1,17 +1,41 @@
 /**
+ * Please Note: This app is NOT released under any open-source license.
+ * Please be sure to read the license agreement before installing this code.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License. You may obtain a copy of the License at:
+ * Copyright 2019 Andrew Parker, Parker IT North East Limited
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This software package is created and licensed by Parker IT North East Limited. A United Kingdom, Limited Company.
  *
- *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
- *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
- *  for the specific language governing permissions and limitations under the License.
+ * This software, along with associated elements, including but not limited to online and/or electronic documentation are
+ * protected by international laws and treaties governing intellectual property rights.
  *
- *  Last Update: 13/01/2019
+ * This software has been licensed to you. All rights are reserved. You may use and/or modify the software.
+ * You may not sublicense or distribute this software or any modifications to third parties in any way.
+ *
+ * You may not distribute any part of this software without the author's express permission
+ *
+ * By downloading, installing, and/or executing this software you hereby agree to the terms and conditions set forth in the Software license agreement.
+ * This agreement can be found on-line at: http://hubitat.uk/Software_License_Agreement.txt
+ * 
+ * Hubitat is the trademark and intellectual property of Hubitat Inc. 
+ * Parker IT North East Limited has no formal or informal affiliations or relationships with Hubitat.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License Agreement
+ * for the specific language governing permissions and limitations under the License.
+ *
+ *-------------------------------------------------------------------------------------------------------------------
  *
  *
+ *  Last Update: 10/06/2019
+ *
+ *
+ *  V2.0.0 - Complete re-code
+ *           You can now configure any number of flashes
+ *           The app now attempts to restore switches to previous setting after flashing completes
+ *           Update check is now randomised
+ *           Increased button trigger to use up to 8 buttons (previously 5)
+ *           This software is released under a new license agreement.
  *
  *  V1.6.0 - Added 'Motion Active' as a trigger & Added 2nd switch restriction
  *  V1.5.1 - Debug presence restriction
@@ -22,6 +46,9 @@
  *  V1.1.0 - Added 'restrictions' page & revised update check
  *  V1.0.0 - POC
  */
+
+
+
 definition(
     name: "Flasher Child",
     namespace: "Cobra",
@@ -56,16 +83,16 @@ preferences {
           if(trigger == "Button Pushed"){section() {
                 input "button1", "capability.pushableButton", title: "Select Button Device", required: true, multiple: false, submitOnChange: true
               	if(button1){
-            	input "buttonNumber", "enum", title: "Select Button Number", required: true, options: ["1", "2", "3", "4", "5"] 
+            	input "buttonNumber", "enum", title: "Select Button Number", required: true, options: ["1", "2", "3", "4", "5", "6", "7", "8"] 
               }
             }
                                          }  
             
     section(){
 		input "switches", "capability.switch", title: "Lights to flash", multiple: true
-	    input "numFlashes", "enum", title: "This number of times", submitOnChange: true, defaultValue: "0", options: [ "1","2","3","4","5"]
-        input "delay1", "decimal", title: "Delay between flashes (Seconds - Can be decimal e.g. 0.5)", required: true
-        input "startfinish", "bool", title: "Start & Finish On or Off", submitOnChange: true, defaultValue: true
+	    input "numFlashes", "number", title: "This number of times", defaultValue: 3
+        input "delay1", "number", title: "Delay between flashes (Seconds)", required: true
+
         
 	}
 
@@ -128,7 +155,7 @@ def restrictionsPage() {
      	}
 		}	
        
-        section() {input "debugMode", "bool", title: "Enable debug logging", required: true, defaultValue: false}
+        section() {input "logLevel", "enum", title: "Set Logging Level", required:true, defaultValue: "NONE", options: ["NONE", "INFO", "DEBUG & INFO"]}
 		 section() {label title: "Enter a name for this automation", required: false}
     }
 }
@@ -169,223 +196,39 @@ def subscribeNow() {
         if(buttonNumber == '3'){subscribe(button1, "pushed.3", flashNow)}
         if(buttonNumber == '4'){subscribe(button1, "pushed.4", flashNow)}
         if(buttonNumber == '5'){subscribe(button1, "pushed.5", flashNow)}
+		if(buttonNumber == '6'){subscribe(button1, "pushed.6", flashNow)}
+		if(buttonNumber == '7'){subscribe(button1, "pushed.7", flashNow)}
+		if(buttonNumber == '8'){subscribe(button1, "pushed.8", flashNow)}
     } 
-    
-
-
-    
-
-
-
    
-    
-    
 }
-
-
-
-
-
-def flashNow(evt) {
+	def getStatus1(){state.lightsOnNow = switches.collect{it.currentSwitch == "on"}}
+	def flashNow(evt) {
     checkAllow()
 	if(state.allAllow == true){
-	LOGDEBUG( "Flashing Now!")
-    state.flashNow = numFlashes
-		flashLights()
-	}
-}
-
-
-
-
-def flashLights() {                                    
-                                    
-    def delay2 = delay1.toFloat()
-    state.myDelay = (delay2 * 1000).toInteger()
-    
-     if(startfinish == null){
-        state.startfinishNow = true
-    }
-    else{
-	    state.startfinishNow = startfinish
-    }
-    LOGDEBUG("state.startfinishNow = $state.startfinishNow ")
-    if(state.flashNow == '5'){
-        
-    if(state.startfinishNow == true){
-    off()
+	getStatus1()
+	LOGINFO( "Flashing Now!")
+    state.num = numFlashes
+	flashLights1()}}
+	def flashLights1(){
+    state.myDelay = delay1 *1000
+	if(state.num > 0){
+	switches.off()
     pause(state.myDelay)
-	on()
-    pause(state.myDelay)
-    off()
-    pause(state.myDelay)
-    on()
-    pause(state.myDelay)
-    off()
-    pause(state.myDelay)
-    on()
-    pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()        
-        }
-        
-    if(state.startfinishNow == false){
-   	on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on() 
-     pause(state.myDelay)
-     off()
-       }    
-} 
-    if(state.flashNow == '4'){
-        
-    if(state.startfinishNow == true){
-    off()
-     pause(state.myDelay)
-	on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-       
-        }
-        
-    if(state.startfinishNow == false){
-   	on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-    }    
-}     
-    
-    if(state.flashNow == '3'){
-        
-    if(state.startfinishNow == true){
-    off()
-     pause(state.myDelay)
-	on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-
-       
-        }
-        
-    if(state.startfinishNow == false){
-   	on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-    }    
-}     
-    
-    if(state.flashNow == '2'){
-        
-    if(state.startfinishNow == true){
-    off()
-     pause(state.myDelay)
-	on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-       
-        }
-        
-    if(state.startfinishNow == false){
-   	on()
-     pause(state.myDelay)
-    off()
-     pause(state.myDelay)
-    on()
-     pause(state.myDelay)
-    off()
-
-    }    
-} 
-    
-     if(state.flashNow == '1'){
-        
-    if(state.startfinishNow == true){
-    off()
-     pause(state.myDelay)
-	on()
-        }
-        
-    if(state.startfinishNow == false){
-   	on()
-     pause(state.myDelay)
-    off()
-    }
-
-        
-  }    
-}  
-
-
-
-def on(){
-   LOGDEBUG("turning on...") 
     switches.on()
-    
-}
+	pause(state.myDelay)	
+	switches.off()	
+	state.num = (state.num -1)
+	LOGDEBUG("Number of flashes to go = $state.num")	
+	runIn(delay1,flashLights1)}
+	else{restore()}}
+	def restore(){
+	LOGINFO("Restoring previous settings")
+	lightsNow = state.lightsOnNow
+	switches.eachWithIndex {s, i ->
+	if (lightsNow[i]) {s.on()}
+	else {s.off()}}}
 
-
-def off(){
-     LOGDEBUG("turning off...") 
-   switches.off() 
-    
-}
 
 
 def checkAllow(){
@@ -442,7 +285,7 @@ def checkAllow(){
  	  }
 	else{
  	state.allAllow = false
-	LOGWARN( "One or more restrictions apply - Unable to continue")
+	LOGDEBUG("One or more restrictions apply - Unable to continue")
  	LOGDEBUG("state.appgo1 = $state.appgo1, state.appgo2 = $state.appgo2, state.dayCheck = $state.dayCheck, state.presenceRestriction = $state.presenceRestriction, state.presenceRestriction1 = $state.presenceRestriction1, state.modeCheck = $state.modeCheck, state.timeOK = $state.timeOK, state.noPause = $state.noPause, state.sunGoNow = $state.sunGoNow")
       }
    }
@@ -698,8 +541,11 @@ def version(){
 	pauseOrNot()
 	logCheck()
 	resetBtnName()
-	schedule("0 0 9 ? * FRI *", updateCheck) //  Check for updates at 9am every Friday
 	checkButtons()
+	def random = new Random()
+    Integer randomHour = random.nextInt(18-10) + 10
+    Integer randomDayOfWeek = random.nextInt(7-1) + 1 // 1 to 7
+    schedule("0 0 " + randomHour + " ? * " + randomDayOfWeek, updateCheck) 
    
 }
 
@@ -708,25 +554,44 @@ def version(){
 
 
 
+def logsDown(){
+    log.warn "Debug logging disabled... Info logging enabled"
+    app.updateSetting("logLevel",[value:"INFO",type:"enum"])
+	if(logLevel == "INFO") runIn(86400,logsDownAgain) 
+}
+
+def logsDownAgain(){
+    log.warn "Info logging disabled."
+    app.updateSetting("logLevel",[value:"NONE",type:"enum"])
+	
+}
+
 def logCheck(){
-    state.checkLog = debugMode
-    if(state.checkLog == true){log.info "All Logging Enabled"}
-    if(state.checkLog == false){log.info "Further Logging Disabled"}
+    state.checkLog = logLevel
+	if(state.checkLog == "INFO"){log.info "Informational Logging Enabled"}
+	if(state.checkLog == "DEBUG & INFO"){log.info "Debug & Info Logging Enabled"}
+	if(state.checkLog == "NONE"){log.info "Further Logging Disabled"}
+	if(logLevel == "DEBUG & INFO") runIn(1800,logsDown)
 }
 
 def LOGDEBUG(txt){
+	if(state.checkLog == "DEBUG & INFO"){
     try {
-    	if (settings.debugMode) { log.debug("${app.label.replace(" ","_").toUpperCase()}  (App Version: ${state.version}) - ${txt}") }
+    	log.debug("(App Version: ${state.version}) - ${txt}") 
     } catch(ex) {
-    	log.error("LOGDEBUG unable to output requested data!")
+    	log.error("LOGDEBUG unable to output requested data! - DEBUG- ${txt}")
     }
+  }		
 }
-def LOGWARN(txt){
+
+def LOGINFO(txt){
+	if(state.checkLog == "INFO" || state.checkLog == "DEBUG & INFO"){
     try {
-    	if (settings.debugMode) { log.warn("${app.label.replace(" ","_").toUpperCase()}  (App Version: ${state.version}) - ${txt}") }
+    	log.info("(App Version: ${state.version}) - ${txt}") 
     } catch(ex) {
-    	log.error("LOGWARN unable to output requested data!")
+    	log.error("LOGINFO unable to output requested data! - INFO- ${txt}")
     }
+  }
 }
 
 
@@ -856,6 +721,11 @@ def updateCheck(){
             state.updateMsg = "There is a new version of '$state.ExternalName' available (Version: $newVerRaw)"
             
        		} 
+		else if(currentVer > newVer){
+        	state.status = "You are using a BETA ($state.version) - Release Version: $newVerRaw"
+        	log.warn "** <b>$state.status</b>) **"
+        	state.UpdateInfo = "N/A"
+		}
 		else{ 
       		state.status = "Current"
        		LOGDEBUG("You are using the current version of this app")
@@ -889,7 +759,7 @@ def preCheck(){
 	setVersion()
     state.appInstalled = app.getInstallationState()  
     if(state.appInstalled != 'COMPLETE'){
-    section(){ paragraph "$state.preCheckMessage"}
+    section(){ paragraph "$state.preCheckMessage <br> <br> $state.agreementNotice"}
     }
     if(state.appInstalled == 'COMPLETE'){
     display()   
@@ -911,18 +781,15 @@ def setDefaults(){
 	state.restrictRun = false
 }
 
-def cobra(){
-	log.warn "Previous schedule for old 'Cobra Update' found... Removing......"
-	unschedule(cobra)
-	log.info "Cleanup Done!"
-}
 
 def setVersion(){
-		state.version = "1.6.0"	 
+		state.version = "2.0.0"	 
 		state.InternalName = "FlasherChild" 
     	state.ExternalName = "Flasher Child"
 		state.preCheckMessage = "This app is designed to flash a set of lights in response to a configurable trigger"
 		state.CobraAppCheck = "flasher.json"
+		state.agreementNotice = "By downloading, installing, and/or executing this software you hereby agree to the terms and conditions set forth in the Software license agreement.<br>This agreement can be found on-line at: http://hubitat.uk/Software_License_Agreement.txt"
+    	
 }
 
 
