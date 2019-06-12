@@ -33,10 +33,12 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Update: 06/01/2019
+ *  Last Update: 12/06/2019
  *
  *  Changes:
  *
+ *
+ *  V2.5.1 - Debug Time trigger
  *  V2.5.0 - Added additonal (2nd) switch for restriction & fixed other restriction bugs
  *  V2.4.1 - Debug restrictions
  *  V2.4.0 - added disable apps code
@@ -200,9 +202,9 @@ submitOnChange: true}
 }
 
   
-def installed(){initialise()}
-def updated(){initialise()}
-def initialise(){
+def installed(){initialize()}
+def updated(){initialize()}
+def initialize(){
 	version()
 	subscribeNow()
 	log.info "Initialised with settings: ${settings}"
@@ -210,6 +212,7 @@ def initialise(){
 }
 def subscribeNow() {
 	unsubscribe()
+//	subscribe(location, "systemStart", updated)
 	if(enableSwitch1){subscribe(enableSwitch1, "switch", switchEnable1)}
 	if(enableSwitch2){subscribe(enableSwitch2, "switch", switchEnable2)}
 	if(enableSwitchMode == null){enableSwitchMode = true} // ????
@@ -243,6 +246,7 @@ def subscribeNow() {
 
 
 def evtHandler (evt){
+	if(evt == null){evt = "Time Trigger"}
     LOGDEBUG("Running evtHandler... Event received: $evt.value") 
     checkAllow()
 	if(state.allAllow == true){
@@ -925,7 +929,7 @@ def setDefaults(){
 
 
 def setVersion(){
-		state.version = "2.5.0"	 
+		state.version = "2.5.1"	 
 		state.InternalName = "CheckContactsChild"
     	state.ExternalName = "Check Open Contacts Child"
 		state.preCheckMessage = "This app is designed to announce if any contacts are open when an event is triggered - It can also turn on other switches if any open or all closed"
