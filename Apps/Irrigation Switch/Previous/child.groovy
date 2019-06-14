@@ -35,9 +35,8 @@
  *
  *-------------------------------------------------------------------------------------------------------------------
  *
- *  Last Updated: 14/06/2019
+ *  Last Updated: 14/01/2019
  *
- *  V2.3.0 - Added additional 'Apixu' driver attributes
  *  V2.2.0 - Added additonal (2nd) switch for restriction & fixed other restriction bugs
  *  V2.1.1 - Debug presence restriction
  *  V2.1.0 - added disable apps code
@@ -153,9 +152,12 @@ def restrictionsPage() {
     }
 }
 
-def installed(){initialize()}
-def updated(){initialize()}
-def initialize(){
+           
+
+
+def installed(){initialise()}
+def updated(){initialise()}
+def initialise(){
 	version()
 	subscribeNow()
 	log.info "Initialised with settings: ${settings}"
@@ -163,7 +165,6 @@ def initialize(){
 }
 def subscribeNow() {
 	unsubscribe()
-//	subscribe(location, "systemStart", updated)
 	if(enableSwitch1){subscribe(enableSwitch1, "switch", switchEnable1)}
 	if(enableSwitch2){subscribe(enableSwitch2, "switch", switchEnable2)}
 	if(enableSwitchMode == null){enableSwitchMode = true} // ????
@@ -181,16 +182,8 @@ def subscribeNow() {
      schedule(runTime, runNow)
      schedule(stopTime, offNow)    
      subscribe(sensor1, "precip_today", irrigationCollect1)
-     subscribe(sensor1, "precipDay0", irrigationCollect1)
      subscribe(sensor1, "rainTomorrow", irrigationCollect2)
-     subscribe(sensor1, "precipDayPlus1", irrigationCollect2)
      subscribe(sensor1, "rainDayAfterTomorrow",  irrigationCollect3)
-     subscribe(sensor1, "precipDayPlus2",  irrigationCollect3)
-    
-    
-    
-    
-    
      state.rainTmp3 = 0  // default for rain the day before yesterday
 	 state.rainTmp2 = 0  // default for rain yesterday
 	 state.rainTmp1 = 0  // default for rain today
@@ -875,7 +868,7 @@ def setDefaults(){
 
 
 def setVersion(){
-    state.version = "2.3.0"	 
+    state.version = "2.2.0"	 
     state.InternalName = "IrrigationSwitchChild"
     state.ExternalName = "Irrigation Switch Child"
     state.preCheckMessage = "This was created to use either as a switch to water the garden or as a switch to 'announce' that the garden needs water (Dependant upon recent rainfall)" 
