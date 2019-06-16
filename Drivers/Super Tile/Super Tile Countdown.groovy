@@ -27,13 +27,13 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *  
- *  Last Update: 18/04/2019
+ *  Last Update: 16/06/2019
  *  Changes:
  *
  * 
- * added character numbers for each attribute
- * added countdown to date/time
- *  
+ * 
+ * 
+ *  V1.1.0 - Added Minutes countdown - changing to seconds in last minute
  *  V1.0.0 - POC
  *
  */
@@ -43,9 +43,11 @@ metadata {
 definition (name: "SuperTileCountdownDisplay", namespace: "Cobra", author: "AJ Parker", importUrl: "https://raw.githubusercontent.com/CobraVmax/Hubitat/master/Drivers/Super%20Tile/Super%20Tile%20Time%20Device.groovy"){
 	capability "Sensor"
 	command "startTimer"
+    command "startTimerMinutes"
 	command "stopTimer"
 	command "refresh"
 	command "setCountDownSeconds", ["number"]
+    command "setCountDownMinutes", ["number"]
 	command "daysLeft", ["string"]
 	command "hoursLeft",["string"]
 	command "minutesLeft", ["string"]
@@ -75,7 +77,11 @@ attribute "CountCharNumber - TimeLeft", "string"
 	input "fstyle", "enum",  title: "Font Style", submitOnChange: true, defaultValue: "Normal", options: ["Normal", "Italic"]
 	input "fcolour", "text",  title: "Font Colour (Hex Value)", defaultValue:"FFFFFF", submitOnChange: true
 	input "fsize", "number",  title: "Initial Font Size", defaultValue:"25", submitOnChange: true
-	input "debugMode", "bool", title: "Enable debug logging", required: true, defaultValue: false }}   
+    input "displayStatus", "bool", title: "Display 'Units' (Minutes/Seconds)", required: true, defaultValue: true  
+	input "debugMode", "bool", title: "Enable debug logging", required: true, defaultValue: true  
+	
+	
+	}}   
 
 def initialize(){updated()}
 def updated() {
@@ -86,22 +92,51 @@ setFont()
 }
 
 
-def setCountDownSeconds(secsIn){state.count = secsIn}
+def setCountDownSeconds(secsIn){
+state.count1 = secsIn
+LOGDEBUG("Countdown Seconds set to: $state.count1")}
+def setCountDownMinutes(minsIn){
+state.count2 = minsIn
+LOGDEBUG("Countdown Minutes set to: $state.count2")}
+
 def startTimer(){
-state.countNow = state.count
-if(clockMode == true){stopClock()}
+LOGDEBUG("Starting seconds timer...")
+state.countNow = state.count1
+state.status = "Seconds" 
+state.status1 = "Seconds"    
 runIn(1, reduce)
 send()}
 
+
+def startTimerMinutes(){
+LOGDEBUG("Starting minutes timer...")
+state.countNow = state.count2
+state.status = "Minutes"
+state.status1 = "Minutes"    
+runIn(60, reduceMin)
+send()}
+
+
+
+
+
+
 def stopTimer(){
-	state.countNow = 0}
+LOGDEBUG("Stopping timer...")
+state.countNow = 0
+state.status = "Stopped" 
+state.status1 = " "    
+sendEvent(name: "CountStatus", value: state.status, isStateChange: true)
+send()}
 
 def send(){
+// state.status =    
 state.finalSend =""
 state.finalSend += "<div style='color: #$state.fc;font-size:$state.fs"
 state.finalSend += "px;font-weight: $state.fw; $state.stl'>"
 state.finalSend +="${state.countNow}"
 state.finalSend += "</div>"
+    if(displayStatus){state.finalSend += "${state.status1}" }   
 state.CountCharNumber = state.finalSend.length()
 sendEvent(name: "CountCharNumber - Countdown", value: state.CountCharNumber)	
 sendEvent(name: "Countdown", value: state.finalSend, isStateChange: true)	
@@ -165,15 +200,38 @@ def refresh(){
 
 def reduce(){
 if(state.countNow > 0){
-state.status = "Active"		
+state.status = "Seconds"		
 state.countNow = state.countNow -1
+LOGDEBUG("Seconds Left = $state.countNow")
 send()	
 runIn(1,reduce)}
 if(state.countNow < 1 ){
-state.status = "Stopped"	
-if(clockMode == true){startClock()}
-sendEvent(name: "CountStatus", value: state.status)
-send()}}	
+state.status = "Stopped"
+state.status1 = " "     
+sendEvent(name: "CountStatus", value: state.status, isStateChange: true)
+send()}}    
+
+
+
+
+    
+def reduceMin(){
+    if(state.status != "Seconds"){
+if(state.countNow > 0){
+state.status = "Minutes"		
+state.countNow = state.countNow -1
+LOGDEBUG("Minutes Left = $state.countNow")
+send()	
+    runIn(60,reduceMin)}   
+if(state.countNow == 1 ){
+state.status = "Seconds"	
+sendEvent(name: "CountStatus", value: state.status, isStateChange: true)
+setCountDownSeconds(60)
+startTimer()   
+    send()}}}	
+
+
+
 def setFont(){
 dFontW()
 dFontC()
@@ -265,7 +323,7 @@ def updateCheck(){
 }
 
 def setVersion(){
-    state.version = "1.0.0"
+    state.version = "1.1.0"
     state.InternalName = "SuperTileCountDownDisplay"
    	state.CobraAppCheck = "supertilecountdowndriver.json"     
 }

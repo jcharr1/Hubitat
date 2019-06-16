@@ -27,12 +27,12 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 30/05/2019
+ *  Last Update: 03/06/2019
  *
  *  Changes:
  * 
  * 
- * 
+ *  V1.1.0 - Added countdown to date formatting & Display license notification text on install
  *  V1.0.1 - debug
  *  V1.0.0 - POC
  *
@@ -84,6 +84,7 @@ if(over){input "vDevice2", "device.SuperTileDisplayDevice", title: "Superimpose 
 	section (){
 	input "switchIt", "bool", title: "Also control a switch with this countdown (Turns on for the duration of the count)", required: true, defaultValue: false, submitOnChange: true
 		if(switchIt){input "switch10", "capability.switch", title: "Switch to control", required: true}}	
+		
 		section() {input "logLevel", "enum", title: "Set Logging Level", required:true, defaultValue: "NONE", options: ["NONE", "INFO", "DEBUG & INFO"]}
 		section() {label title: "Enter a name for this automation", required: false}
 	}
@@ -109,6 +110,7 @@ if(over){input "vDevice2", "device.SuperTileDisplayDevice", title: "Superimpose 
 		input "displayMode", "bool", title: "Minutes (Off) - Hours(On)", required: true, defaultValue: false
 		}
 	}
+		section("Output Format") {input "format1", "enum",  title: "TimeLeft Output Format", required:true, defaultValue: "Days", options: ["Days", "Weeks", "Years"]}
 		section() {input "logLevel", "enum", title: "Set Logging Level", required:true, defaultValue: "NONE", options: ["NONE", "INFO", "DEBUG & INFO"]}
 		section() {label title: "Enter a name for this automation", required: false}
 		
@@ -225,12 +227,43 @@ Date start = Date.parse('dd.MM.yyyy HH:mm', nowdate)
 	Date end  = Date.parse('dd.MM.yyyy HH:mm', "${state.selectedDate}.${state.runMonth}.${state.selectedYear} ${state.selectedHour}:${state.selectedMin}")
 	LOGINFO("Finish Date & Time: $end")
 	def duration = TimeCategory.minus( end, start )
+	
+	if(format1 == "Days"){
 	state.days = duration.days
 	state.hours = duration.hours
 	state.minutes = duration.minutes
+	state.timeLeft = "<b>Days: </b>" +duration.days +" <b> Hrs: </b>" +duration.hours +" <b> Mins: </b>" +duration.minutes 	
+	}
+	
+	if(format1 == "Weeks"){
+	state.days = duration.days
+	state.hours = duration.hours
+	state.minutes = duration.minutes
+	def	days = state.days
+	int weeks = (days % 365) / 7
+		days  = (days % 365) % 7
+	state.timeLeft = "<b>Weeks: </b>" +weeks +" <b> Days: </b>" +days +" <b> Hrs: </b>" +duration.hours +" <b> Mins: </b>" +duration.minutes 
+		
+	}
+	
+	if(format1 == "Years"){
+	state.days = duration.days
+	state.hours = duration.hours
+	state.minutes = duration.minutes
+	def	days = state.days
+		int years = (days / 365)
+		int months = (days % 365) % 30
+        int weeks = (days % 365) / 7
+            days  = (days % 365) % 7	
+	
+	state.timeLeft = "<b>Years: </b>" +years +" <b> Weeks: </b>" +weeks +" <b> Days: </b>" +days +" <b> Hrs: </b>" +duration.hours +" <b> Mins: </b>" +duration.minutes 
+		
+//		log.warn "result = years: $years  - weeks: $weeks - days: $days - hrs = $state.hours - mins: $state.minutes"
+	}
 	
 	
-	state.timeLeft = "<b>Days: </b>" +duration.days +" <b> Hrs: </b>" +duration.hours +" <b> Mins: </b>" +duration.minutes 
+
+	
 LOGDEBUG("Time left = $state.timeLeft")	
 	if(duration.days > 0 || duration.hours > 0 || duration.minutes > 0){
 
@@ -734,7 +767,8 @@ def preCheck(){
 	setVersion()
     state.appInstalled = app.getInstallationState()  
     if(state.appInstalled != 'COMPLETE'){
-    section(){ paragraph "$state.preCheckMessage"}
+    section(){ paragraph "$state.preCheckMessage <br><br>$state.agreementNotice"}
+	
     }
     if(state.appInstalled == 'COMPLETE'){
 	LOGDEBUG(" installed ok....")
@@ -753,10 +787,11 @@ def setDefaults(){
    }
     
 def setVersion(){
-		state.version = "1.0.1"	 
+		state.version = "1.1.0"	 
 		state.InternalName = "SuperTileCountdownChild"
     	state.ExternalName = "Super Tile Time Child"
 		state.preCheckMessage = "This app was designed to use a special Virtual Display device  to display time or a countdown on a dashboard tile"
+		state.agreementNotice = "By downloading, installing, and/or executing this software you hereby agree to the terms and conditions set forth in the Software license agreement.<br>This agreement can be found on-line at: http://hubitat.uk/Software_License_Agreement.txt"
     	state.CobraAppCheck = "supertilecountdown.json"
 		
 }
