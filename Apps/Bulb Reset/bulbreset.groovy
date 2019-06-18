@@ -119,6 +119,7 @@ def subscribeNow() {
 }
 def runNow(evt){
     getTypeActions()
+    log.warn "in runnow"
     LOGDEBUG("Waiting a couple of seconds before starting routine...")
     pauseExecution(2000)
     LOGINFO( "Toggling now.. Please wait a short while..")
@@ -141,6 +142,7 @@ def flashNow() {
 	}
 def getTypeActions(){    
     if(deviceToReset == "Custom"){
+        log.warn "in custom"
     LOGDEBUG(deviceToReset)  
     state.myDelay1 = delay1 *1000 
     state.myDelay2 = delay2 *1000
