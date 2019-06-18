@@ -140,7 +140,7 @@ def flashNow() {
         
 	}
 def getTypeActions(){    
-    if(deviceToReset == "Device Type: Custom"){
+    if(deviceToReset == "Custom"){
     LOGDEBUG(deviceToReset)  
     state.myDelay1 = delay1 *1000 
     state.myDelay2 = delay2 *1000
@@ -434,7 +434,6 @@ def setVersion(){
 		state.agreementNotice = "<b>Please Note:</b><br> By downloading, installing, and/or executing this software you hereby agree to the terms and conditions set forth in the Software license agreement.<br> This agreement can be found on-line at: http://hubitat.uk/Software_License_Agreement.txt"
     	
 }
-
 
 
 
