@@ -27,10 +27,10 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 20/06/2019
+ *  Last Update: 18/06/2019
  *
  *
- *  V1.1.0 - Cleaned up code and added a Button trigger also changed custom input timing to milliseconds
+
  *  V1.0.0 - POC
  */
 
@@ -57,27 +57,34 @@ preferences {
  def mainPage() {
 	dynamicPage(name: "mainPage") {  
     preCheck()
-       section() {input "deviceToReset", "enum", title: "Select Device Type", submitOnChange: true, options: deviceType()} 
-       section() {input "trigger", "enum", title: "Select Trigger", submitOnChange: true, options: ["Switch On", "Button Pushed"]}   
-       if(trigger == 'Switch On'){section() { input  "controlSwitch1", "capability.switch", title: "Trigger Switch",  required: true}} 
-       if(trigger == "Button Pushed"){section() {
-       input "button1", "capability.pushableButton", title: "Select Button Device", required: true, multiple: false
-       input "buttonNumber", "enum", title: "Select Button Number", required: true, options: ["1", "2", "3", "4", "5", "6", "7", "8"]}} 
-       section() {input "flashSwitch1", "capability.switch", title: "Outlet or Switch to toggle",   required: true} 
-       if(deviceToReset == "Custom"){     
-       section(){
-	   input "numFlashes", "number", title: "This number of times", required: true, defaultValue: 5
-       input "delay1", "number", title: "On for.. (Milliseconds)", required: true, defaultValue: 1000
-       input "delay2", "number", title: "Off for.. (Milliseconds)", required: true, defaultValue: 1000
-       input "startType", "bool", title: "Start on or off?", required: true, defaultValue: "off"}}
-       section() {input "logLevel", "enum", title: "Set Logging Level", required:true, defaultValue: "DEBUG & INFO", options: ["NONE", "INFO", "DEBUG & INFO"]}
-        section() {label title: "Enter a name for this automation", required: false}}}
-
+      section() {  
+      input "deviceToReset", "enum", title: "Select Device Type", submitOnChange: true, options: deviceType()
+      } 
+      
+    section() {
+       
+        input  "controlSwitch1", "capability.switch", title: "Trigger Switch",  required: true
+        input "flashSwitch1", "capability.switch", title: "Outlet or Switch to toggle",   required: true
+        }  
+        if(deviceToReset == "Custom"){     
+    section(){
+	    input "numFlashes", "number", title: "This number of times", required: true, defaultValue: 5
+        input "delay1", "number", title: "On for.. (Seconds)", required: true, defaultValue: 5
+        input "delay2", "number", title: "Off for.. (Seconds)", required: true, defaultValue: 5
+        input "startType", "bool", title: "Start on or off?", required: true, defaultValue: "off"
+        
+    }
+        }
+        
+        section() {input "logLevel", "enum", title: "Set Logging Level", required:true, defaultValue: "DEBUG & INFO", options: ["NONE", "INFO", "DEBUG & INFO"]}
+		section() {label title: "Enter a name for this automation", required: false}
+    }
+}
 
 
 
 def deviceType(){
- listInput1 = [
+    listInput1 = [
 "Custom",
 "AduroSmart ERIA",
 "Aeotec Z-Wave Bulb",
@@ -92,7 +99,7 @@ def deviceType(){
 "Yeelight",
 "Zigbee OnOff Controller"
 ]  
-return listInput1
+    return listInput1
 }
 
 
@@ -101,26 +108,24 @@ def updated(){initialise()}
 def initialise(){
 	version()
     preCheck()
-    resetBtnName()	
+    resetBtnName()
+	subscribeNow()
 	log.info "Initialised with settings: ${settings}"
-	logCheck()
-    subscribeNow()
-    }
+	logCheck()	
+}
 def subscribeNow() {
 	unsubscribe()
-    subscribe(controlSwitch1, "switch.on", runNow)
-    subscribe(flashSwitch1, "switch", logSwitch) 
-    if(button1){subscribe(button1, "pushed." +buttonNumber,  runNow)} 
-    }
-
-
-
-def logSwitch(evt){LOGDEBUG("logswitch: $evt.value")}
-    def runNow(evt){
+    subscribe(controlSwitch1, "switch.on", runNow)  
+}
+def runNow(evt){
     getTypeActions()
-    LOGINFO( "Toggling now.. ")
-    flashNow()}    
-    def flashNow() {
+//    log.warn "in runnow"
+    LOGDEBUG("Waiting a couple of seconds before starting routine...")
+    pauseExecution(2000)
+    LOGINFO( "Toggling now.. Please wait a short while..")
+    flashNow()  
+}
+def flashNow() {
 	if(state.num > 0){
 	flashSwitch1.on()
     pauseExecution(state.myDelay1)
@@ -129,76 +134,142 @@ def logSwitch(evt){LOGDEBUG("logswitch: $evt.value")}
 	LOGDEBUG("Number of toggles to go = $state.num")
     pauseExecution(state.myDelay2)
     flashNow()
-    } else{
-    flashSwitch1.on()
-    LOGINFO("FINISHED! - Leaving switched on...")}}
-    def getTypeActions(){
-    LOGDEBUG("Device Type: " +deviceToReset)    
-    state.deviceMap1 = [:]
+    }
+        else{
+            flashSwitch1.on()
+            LOGINFO("FINISHED! - Leaving switched on...")}
         
+	}
+def getTypeActions(){    
     if(deviceToReset == "Custom"){
+  //      log.warn "in custom"
     LOGDEBUG(deviceToReset)  
-    state.myDelay1 = delay1 
-    state.myDelay2 = delay2 
+    state.myDelay1 = delay1 *1000 
+    state.myDelay2 = delay2 *1000
     state.num = numFlashes
-    if(startType == true){state.start = "on"}
-    if(startType == false){state.start = "off"}
+    state.start = startType1
     if(state.start == "on"){
     LOGDEBUG("Making sure the device is on to start")
-    flashSwitch1.on()}
+    flashSwitch1.on()
+    }
     if(state.start == "off"){
     LOGDEBUG("Making sure the device is off to start")
-     flashSwitch1.off()}
-    LOGDEBUG("Waiting a couple of seconds before starting routine...")
-    pauseExecution(2000)} 
-    switch(deviceToReset) {
-    case "AduroSmart ERIA":
-    state.deviceMap1 << [start:'off', on:500, off:500,freq:10]         
-    break;
-    case "Aeotec Z-Wave Bulb":    
-    state.deviceMap1 << [start:'off', on:500, off:500,freq:2]
-    break;   
-    case "Cree A19":      
-    state.deviceMap1 << [start:'off', on:1000, off:1000,freq:4]   
-    break;
-    case "Ikea Tradfri":     
-    state.deviceMap1 << [start:'on', on:500, off:1000,freq:6]    
-    break;
-    case "Innr":
-    state.deviceMap1 << [start:'off', on:4000, off:3000,freq:5]
-    break;    
-    case "Lightify A19":
-    state.deviceMap1 << [start:'off', on:1000, off:3000,freq:5]
-    break;
-    case "Lightify BR30":   
-    state.deviceMap1 << [start:'off', on:5000, off:5000,freq:5]    
-    break;
-    case "Osram":
-    state.deviceMap1 << [start:'off', on:5000, off:5000,freq:5]   
-    break;
-    case "Sengled":
-    state.deviceMap1 << [start:'on', on:500, off:2500,freq:10]   
-    break;    
-    case "Sylvania Ultra iQ BR30":
-    state.deviceMap1 << [start:'off', on:1000, off:3000,freq:8]    
-    break;
-    case "Yeelight":
-    state.deviceMap1 << [start:'off', on:2000, off:2000,freq:5]    
-    case "Zigbee OnOff Controller":
-    state.deviceMap1 << [start:'off', on:4000, off:4000,freq:5]   
-    break;}   
-    if(deviceToReset != "Custom"){
-    state.myDelay1 = state.deviceMap1.on.toInteger()
-    state.myDelay2 = state.deviceMap1.off.toInteger()   
-    state.num = state.deviceMap1.freq.toInteger() 
-    state.startState = state.deviceMap1.start          
-    LOGDEBUG("Making sure the device is ${state.startState} to start")
-    if(state.startState == 'on'){flashSwitch1.on()}    
-    if(state.startState == 'off'){flashSwitch1.off()}  
-    LOGDEBUG("Waiting a couple of seconds before starting routine...")
-    pauseExecution(2000)}
-    LOGDEBUG("Final numbers - On for: $state.myDelay1 Milliseconds - Off for: $state.myDelay2 Milliseconds -  Number of Times: $state.num  - Stating state: $state.start")        
+     flashSwitch1.off()
+        }                              
     }
+    
+     
+    if(deviceToReset == "AduroSmart ERIA"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 500
+    state.myDelay2 = 500
+    state.num = 10
+    LOGDEBUG("Making sure the device is off to start")
+    state.start = "off"
+    flashSwitch1.off()
+    }     
+     
+    if(deviceToReset == "Aeotec Z-Wave Bulb"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 500
+    state.myDelay2 = 500
+    state.num = 2
+    LOGDEBUG("Making sure the device is off to start")
+    state.start = "off"
+    flashSwitch1.off()
+    }     
+    if(deviceToReset == "Cree A19"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 1000
+    state.myDelay2 = 1000
+    state.num = 4
+    LOGDEBUG("Making sure the device is off to start")
+    state.start = "off"
+    flashSwitch1.off()
+    }
+    if(deviceToReset == "Ikea Tradfri"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 500
+    state.myDelay2 = 1000
+    state.num = 6
+    }
+    if(deviceToReset == "Innr"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 4000
+    state.myDelay2 = 3000
+    state.num = 6
+    LOGDEBUG("Making sure the device is off to start")
+    state.start = "off"
+    flashSwitch1.off()
+    }
+    if(deviceToReset == "Lightify A19"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 1000
+    state.myDelay2 = 3000
+    state.num = 5
+    LOGDEBUG("Making sure the device is off to start")
+    state.start = "off"    
+    flashSwitch1.off()
+    }
+    if(deviceToReset == "Lightify BR30"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 5000
+    state.myDelay2 = 5000   
+    state.num = 5
+    LOGDEBUG("Making sure the device is off to start")
+    state.start = "off"    
+    flashSwitch1.off()
+    }
+    if(deviceToReset == "Osram"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 5000
+    state.myDelay2 = 5000    
+    state.num = 5
+    LOGDEBUG("Making sure the device is off to start")
+    state.start = "off"    
+    flashSwitch1.off()
+    }  
+    if(deviceToReset == "Sengled"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 500
+    state.myDelay2 = 500
+    state.num = 10
+    LOGDEBUG("Making sure the device is on to start")
+    state.start = "on"    
+    flashSwitch1.on()
+    }
+    if(deviceToReset == "Sylvania Ultra iQ BR30"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 1000
+    state.myDelay2 = 3000    
+    state.num = 8
+    LOGDEBUG("Making sure the device is off to start")
+    state.start = "off"    
+    flashSwitch1.off()    
+    }  
+    if(deviceToReset == "Yeelight"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 2000
+    state.myDelay2 = 2000    
+    state.num = 5
+    LOGDEBUG("Making sure the device is off to start")
+    state.start = "off"    
+    flashSwitch1.off()    
+    }  
+    if(deviceToReset == "Zigbee OnOff Controller"){
+    LOGDEBUG("Device Type: " +deviceToReset)
+    state.myDelay1 = 4000
+    state.myDelay2 = 4000    
+    state.num = 5
+    LOGDEBUG("Making sure the device is off to start")
+    state.start = "off"    
+    flashSwitch1.off()    
+    }  
+    
+    
+    
+    LOGDEBUG("Final numbers - On for: $state.myDelay1 Milliseconds - Off for: $state.myDelay2 Milliseconds -  Number of Times: $state.num  - Stating state: $state.start")        
+}
 def version(){
 	setDefaults()
     logCheck()
@@ -357,7 +428,7 @@ def setDefaults(){
     LOGDEBUG("Initialising defaults...")   
 }
 def setVersion(){
-		state.version = "1.1.0"	 
+		state.version = "1.0.0"	 
 		state.InternalName = "DeviceResetTool" 
     	state.ExternalName = "Bulb Reset"
 		state.preCheckMessage = " This app is designed to toggle a device a number of times to reset it.<br><br> First, you need to create a virtual switch and set 'Enable auto off' for 1 second <br> Use that virtual switch as a 'trigger switch'<br><br> Then, select the device type and the outlet or switch that the device is connected to<br> By turning on the trigger switch, the app will toggle the outlet or switch using the correct sequence to reset the device"
