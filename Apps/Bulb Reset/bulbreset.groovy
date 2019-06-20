@@ -134,9 +134,9 @@ def logSwitch(evt){LOGDEBUG("logswitch: $evt.value")}
     LOGINFO("FINISHED! - Leaving switched on...")}}
     def getTypeActions(){
     LOGDEBUG("Device Type: " +deviceToReset)    
-    state.deviceMap1 = [:]
-        
-    if(deviceToReset == "Custom"){
+    state.deviceMap1 = [:]    
+    switch(deviceToReset) {    
+    case "Custom":
     LOGDEBUG(deviceToReset)  
     state.myDelay1 = delay1 
     state.myDelay2 = delay2 
@@ -148,10 +148,10 @@ def logSwitch(evt){LOGDEBUG("logswitch: $evt.value")}
     flashSwitch1.on()}
     if(state.start == "off"){
     LOGDEBUG("Making sure the device is off to start")
-     flashSwitch1.off()}
+    flashSwitch1.off()}
     LOGDEBUG("Waiting a couple of seconds before starting routine...")
-    pauseExecution(2000)} 
-    switch(deviceToReset) {
+    pauseExecution(2000) 
+    break;
     case "AduroSmart ERIA":
     state.deviceMap1 << [start:'off', on:500, off:500,freq:10]         
     break;
