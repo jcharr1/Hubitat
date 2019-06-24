@@ -218,9 +218,8 @@ def poll1(){
 	
     formatUnit()
     state.NumOfPolls = (state.NumOfPolls) + 1
-    log.info " state.NumOfPolls = $state.NumOfPolls" 
    
-    log.debug "WU: ForcePoll called"
+    if(logSet == true){log.debug "WU: ForcePoll called"}
     def params1 = [
 		// Current Observation
        uri: "https://api.weather.com/v2/pws/observations/current?stationId=${pollLocation}&format=json&units=${state.unit}&apiKey=${apiKey}"
