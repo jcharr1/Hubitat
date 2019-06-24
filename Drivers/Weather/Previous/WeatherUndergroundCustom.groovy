@@ -16,9 +16,12 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *  Last Update 24/04/2019
+ *  Last Update 24/06/2019
  *
  *
+ *
+ *  V4.5.0 - removed 'isStateChange: true' to reduce database load.
+ *  V4.4.0 - Changed debug logging to reduce logging spam
  *  V4.3.0 - Added windPhraseForecast attribute
  *  V4.2.0 - Added 'currentIcon' attribute and ability to 'size' icons for dashboard display
  *  V4.1.0 - Made icons optional
@@ -139,7 +142,7 @@ metadata {
             input "pollIntervalLimit", "number", title: "Poll Interval Limit:", required: true, defaultValue: 1
             input "autoPoll", "bool", required: false, title: "Enable Auto Poll"
             input "pollInterval", "enum", title: "Auto Poll Interval:", required: false, defaultValue: "5 Minutes", options: ["5 Minutes", "10 Minutes", "15 Minutes", "30 Minutes", "1 Hour", "3 Hours"]
-            input "logSet", "bool", title: "Log All WU Response Data", required: true, defaultValue: false
+            input "logSet", "bool", title: "Enable Logging", required: true, defaultValue: false
             input "cutOff", "time", title: "New Day Starts", required: true
 			
         }
@@ -215,9 +218,8 @@ def poll1(){
 	
     formatUnit()
     state.NumOfPolls = (state.NumOfPolls) + 1
-    log.info " state.NumOfPolls = $state.NumOfPolls" 
    
-    log.debug "WU: ForcePoll called"
+    if(logSet == true){log.debug "WU: ForcePoll called"}
     def params1 = [
 		// Current Observation
        uri: "https://api.weather.com/v2/pws/observations/current?stationId=${pollLocation}&format=json&units=${state.unit}&apiKey=${apiKey}"
@@ -226,7 +228,7 @@ def poll1(){
     try {
         httpGet(params1) { resp1 ->
             resp1.headers.each {
-            log.debug "Response1: ${it.name} : ${it.value}"
+                if(logSet == true){log.debug "Response1: ${it.name} : ${it.value}"}
         }
             if(logSet == true){  
            
@@ -240,72 +242,72 @@ def poll1(){
  
     		def illume = (resp1.data.observations.solarRadiation[0])
             if(illume){
-            	 sendEvent(name: "illuminance", value: resp1.data.observations.solarRadiation[0], unit: "lux", isStateChange: true)
-                 sendEvent(name: "solarradiation", value: resp1.data.observations.solarRadiation[0], unit: "W", isStateChange: true)
+            	 sendEvent(name: "illuminance", value: resp1.data.observations.solarRadiation[0], unit: "lux")
+                 sendEvent(name: "solarradiation", value: resp1.data.observations.solarRadiation[0], unit: "W")
             }
             if(!illume){
-                 sendEvent(name: "illuminance", value: "No Data", isStateChange: true)
-            	 sendEvent(name: "solarradiation", value: "No Data", isStateChange: true)
+                 sendEvent(name: "illuminance", value: "No Data")
+            	 sendEvent(name: "solarradiation", value: "No Data")
             }   
             sendEvent(name: "pollsSinceReset", value: state.NumOfPolls)
-            sendEvent(name: "stationID", value: resp1.data.observations.stationID[0], isStateChange: true)
-			sendEvent(name: "stationType", value: resp1.data.observations.softwareType[0], isStateChange: true)
+            sendEvent(name: "stationID", value: resp1.data.observations.stationID[0])
+			sendEvent(name: "stationType", value: resp1.data.observations.softwareType[0])
 			
 			
 			
-			sendEvent(name: "humidity", value: resp1.data.observations.humidity[0], isStateChange: true)
-            sendEvent(name: "observation_time", value: resp1.data.observations.obsTimeLocal[0], isStateChange: true)
-            sendEvent(name: "wind_degree", value: resp1.data.observations.winddir[0], isStateChange: true)			
+			sendEvent(name: "humidity", value: resp1.data.observations.humidity[0])
+            sendEvent(name: "observation_time", value: resp1.data.observations.obsTimeLocal[0])
+            sendEvent(name: "wind_degree", value: resp1.data.observations.winddir[0])			
 			state.latt1 = (resp1.data.observations.lat[0])
 			state.long1 = (resp1.data.observations.lon[0])
-			sendEvent(name: "latitude", value: state.latt1 ,isStateChange: true)
-			sendEvent(name: "longitude", value: state.long1,isStateChange: true)	
+			sendEvent(name: "latitude", value: state.latt1)
+			sendEvent(name: "longitude", value: state.long1)	
             
 			if(unitFormat == "Imperial"){
-			sendEvent(name: "precip_rate", value: resp1.data.observations.imperial.precipRate[0], unit: "in", isStateChange: true)
-            sendEvent(name: "precip_today", value: resp1.data.observations.imperial.precipTotal[0], unit: "in", isStateChange: true)
-			sendEvent(name: "feelsLike", value: resp1.data.observations.imperial.windChill[0], unit: "F", isStateChange: true)   
-            sendEvent(name: "temperature", value: resp1.data.observations.imperial.temp[0], unit: "F", isStateChange: true)
-			sendEvent(name: "wind", value: resp1.data.observations.imperial.windSpeed[0], unit: "mph", isStateChange: true)
-            sendEvent(name: "wind_gust", value: resp1.data.observations.imperial.windGust[0], isStateChange: true) 
-			sendEvent(name: "dewpoint", value: resp1.data.observations.imperial.dewpt[0], unit: "F", isStateChange: true)
-			sendEvent(name: "pressure", value: resp1.data.observations.imperial.pressure[0],isStateChange: true)
-			sendEvent(name: "elevation", value: resp1.data.observations.imperial.elev[0], isStateChange: true)
+			sendEvent(name: "precip_rate", value: resp1.data.observations.imperial.precipRate[0], unit: "in")
+            sendEvent(name: "precip_today", value: resp1.data.observations.imperial.precipTotal[0], unit: "in")
+			sendEvent(name: "feelsLike", value: resp1.data.observations.imperial.windChill[0], unit: "F")   
+            sendEvent(name: "temperature", value: resp1.data.observations.imperial.temp[0], unit: "F")
+			sendEvent(name: "wind", value: resp1.data.observations.imperial.windSpeed[0], unit: "mph")
+            sendEvent(name: "wind_gust", value: resp1.data.observations.imperial.windGust[0]) 
+			sendEvent(name: "dewpoint", value: resp1.data.observations.imperial.dewpt[0], unit: "F")
+			sendEvent(name: "pressure", value: resp1.data.observations.imperial.pressure[0])
+			sendEvent(name: "elevation", value: resp1.data.observations.imperial.elev[0])
 			}
 			if(unitFormat == "Metric"){
-			sendEvent(name: "precip_rate", value: resp1.data.observations.metric.precipRate[0], unit: "mm", isStateChange: true)
-            sendEvent(name: "precip_today", value: resp1.data.observations.metric.precipTotal[0], unit: "mm", isStateChange: true)
-			sendEvent(name: "feelsLike", value: resp1.data.observations.metric.windChill[0], unit: "C", isStateChange: true)   
-            sendEvent(name: "temperature", value: resp1.data.observations.metric.temp[0], unit: "C", isStateChange: true)
-			sendEvent(name: "wind", value: resp1.data.observations.metric.windSpeed[0], unit: "kph", isStateChange: true)
-            sendEvent(name: "wind_gust", value: resp1.data.observations.metric.windGust[0], isStateChange: true) 
-			sendEvent(name: "dewpoint", value: resp1.data.observations.metric.dewpt[0], unit: "C", isStateChange: true)
-			sendEvent(name: "pressure", value: resp1.data.observations.metric.pressure[0],isStateChange: true)	
-			sendEvent(name: "elevation", value: resp1.data.observations.metric.elev[0], isStateChange: true)
+			sendEvent(name: "precip_rate", value: resp1.data.observations.metric.precipRate[0], unit: "mm")
+            sendEvent(name: "precip_today", value: resp1.data.observations.metric.precipTotal[0], unit: "mm")
+			sendEvent(name: "feelsLike", value: resp1.data.observations.metric.windChill[0], unit: "C")   
+            sendEvent(name: "temperature", value: resp1.data.observations.metric.temp[0], unit: "C")
+			sendEvent(name: "wind", value: resp1.data.observations.metric.windSpeed[0], unit: "kph")
+            sendEvent(name: "wind_gust", value: resp1.data.observations.metric.windGust[0]) 
+			sendEvent(name: "dewpoint", value: resp1.data.observations.metric.dewpt[0], unit: "C")
+			sendEvent(name: "pressure", value: resp1.data.observations.metric.pressure[0])	
+			sendEvent(name: "elevation", value: resp1.data.observations.metric.elev[0])
 			}
 			if(unitFormat == "UK Hybrid1"){
-			sendEvent(name: "precip_rate", value: resp1.data.observations.uk_hybrid.precipRate[0], unit: "in", isStateChange: true)
-            sendEvent(name: "precip_today", value: resp1.data.observations.uk_hybrid.precipTotal[0], unit: "in", isStateChange: true)
-			sendEvent(name: "feelsLike", value: resp1.data.observations.uk_hybrid.windChill[0], unit: "C", isStateChange: true)   
-            sendEvent(name: "temperature", value: resp1.data.observations.uk_hybrid.temp[0], unit: "C", isStateChange: true)
-			sendEvent(name: "wind", value: resp1.data.observations.uk_hybrid.windSpeed[0], unit: "mph", isStateChange: true)
-            sendEvent(name: "wind_gust", value: resp1.data.observations.uk_hybrid.windGust[0], isStateChange: true) 
-			sendEvent(name: "dewpoint", value: resp1.data.observations.uk_hybrid.dewpt[0], unit: "C", isStateChange: true)
-			sendEvent(name: "pressure", value: resp1.data.observations.uk_hybrid.pressure[0],isStateChange: true)
-			sendEvent(name: "elevation", value: resp1.data.observations.uk_hybrid.elev[0], isStateChange: true)
+			sendEvent(name: "precip_rate", value: resp1.data.observations.uk_hybrid.precipRate[0], unit: "in")
+            sendEvent(name: "precip_today", value: resp1.data.observations.uk_hybrid.precipTotal[0], unit: "in")
+			sendEvent(name: "feelsLike", value: resp1.data.observations.uk_hybrid.windChill[0], unit: "C")   
+            sendEvent(name: "temperature", value: resp1.data.observations.uk_hybrid.temp[0], unit: "C")
+			sendEvent(name: "wind", value: resp1.data.observations.uk_hybrid.windSpeed[0], unit: "mph")
+            sendEvent(name: "wind_gust", value: resp1.data.observations.uk_hybrid.windGust[0]) 
+			sendEvent(name: "dewpoint", value: resp1.data.observations.uk_hybrid.dewpt[0], unit: "C")
+			sendEvent(name: "pressure", value: resp1.data.observations.uk_hybrid.pressure[0])
+			sendEvent(name: "elevation", value: resp1.data.observations.uk_hybrid.elev[0])
 			}
 			
 			
 			if(unitFormat == "UK Hybrid2"){
-			sendEvent(name: "precip_rate", value: resp1.data.observations.metric.precipRate[0], unit: "mm", isStateChange: true)
-            sendEvent(name: "precip_today", value: resp1.data.observations.metric.precipTotal[0], unit: "mm", isStateChange: true)	
-			sendEvent(name: "feelsLike", value: resp1.data.observations.uk_hybrid.windChill[0], unit: "C", isStateChange: true)   
-            sendEvent(name: "temperature", value: resp1.data.observations.uk_hybrid.temp[0], unit: "C", isStateChange: true)
-			sendEvent(name: "wind", value: resp1.data.observations.uk_hybrid.windSpeed[0], unit: "mph", isStateChange: true)
-            sendEvent(name: "wind_gust", value: resp1.data.observations.uk_hybrid.windGust[0], isStateChange: true) 
-			sendEvent(name: "dewpoint", value: resp1.data.observations.uk_hybrid.dewpt[0], unit: "C", isStateChange: true)
-			sendEvent(name: "pressure", value: resp1.data.observations.uk_hybrid.pressure[0],isStateChange: true)
-			sendEvent(name: "elevation", value: resp1.data.observations.uk_hybrid.elev[0], isStateChange: true)
+			sendEvent(name: "precip_rate", value: resp1.data.observations.metric.precipRate[0], unit: "mm")
+            sendEvent(name: "precip_today", value: resp1.data.observations.metric.precipTotal[0], unit: "mm")	
+			sendEvent(name: "feelsLike", value: resp1.data.observations.uk_hybrid.windChill[0], unit: "C")   
+            sendEvent(name: "temperature", value: resp1.data.observations.uk_hybrid.temp[0], unit: "C")
+			sendEvent(name: "wind", value: resp1.data.observations.uk_hybrid.windSpeed[0], unit: "mph")
+            sendEvent(name: "wind_gust", value: resp1.data.observations.uk_hybrid.windGust[0]) 
+			sendEvent(name: "dewpoint", value: resp1.data.observations.uk_hybrid.dewpt[0], unit: "C")
+			sendEvent(name: "pressure", value: resp1.data.observations.uk_hybrid.pressure[0])
+			sendEvent(name: "elevation", value: resp1.data.observations.uk_hybrid.elev[0])
 			}
 			
 			
@@ -336,7 +338,7 @@ def poll2(){
     try {
         httpGet(params2) { resp2 ->
             resp2.headers.each {
-            log.debug "Response2: ${it.name} : ${it.value}"
+                if(logSet == true){log.debug "Response2: ${it.name} : ${it.value}"}
         }
             if(logSet == true){  
            
@@ -347,26 +349,26 @@ def poll2(){
             if(logSet == false){ 
             log.info "Further WU forecast detailed data logging disabled"    
             }    
-            sendEvent(name: "precipType", value: resp2.data.daypart[0].precipType[0], isStateChange: true)
-            sendEvent(name: "chanceOfRain", value: resp2.data.daypart[0].precipChance[0], isStateChange: true)
+            sendEvent(name: "precipType", value: resp2.data.daypart[0].precipType[0])
+            sendEvent(name: "chanceOfRain", value: resp2.data.daypart[0].precipChance[0])
 			
-			sendEvent(name: "rainTomorrow", value: resp2.data.daypart[0].qpf[0], isStateChange: true)
+			sendEvent(name: "rainTomorrow", value: resp2.data.daypart[0].qpf[0])
 			
-			sendEvent(name: "currentConditions", value: resp2.data.narrative[0], isStateChange: true)
-			sendEvent(name: "forecastConditions", value: resp2.data.narrative[1], isStateChange: true)
-			sendEvent(name: "weather", value: resp2.data.daypart[0].wxPhraseLong[0], isStateChange: true)
-			sendEvent(name: "wind_dir", value: resp2.data.daypart[0].windDirectionCardinal[0], isStateChange: true)
-			sendEvent(name: "windPhrase", value: resp2.data.daypart[0].windPhrase[0], isStateChange: true)
-			sendEvent(name: "windPhraseForecast", value: resp2.data.daypart[0].windPhrase[1], isStateChange: true)
+			sendEvent(name: "currentConditions", value: resp2.data.narrative[0])
+			sendEvent(name: "forecastConditions", value: resp2.data.narrative[1])
+			sendEvent(name: "weather", value: resp2.data.daypart[0].wxPhraseLong[0])
+			sendEvent(name: "wind_dir", value: resp2.data.daypart[0].windDirectionCardinal[0])
+			sendEvent(name: "windPhrase", value: resp2.data.daypart[0].windPhrase[0])
+			sendEvent(name: "windPhraseForecast", value: resp2.data.daypart[0].windPhrase[1])
 
 			
-			sendEvent(name: "forecastHigh", value: resp2.data.temperatureMax[0], isStateChange: true)
-			sendEvent(name: "forecastLow", value: resp2.data.temperatureMin[0], isStateChange: true)
-			sendEvent(name: "moonPhase", value: resp2.data.moonPhase[0], isStateChange: true)
-			sendEvent(name: "UVHarm", value: resp2.data.daypart[0].uvDescription[0], isStateChange: true) 
+			sendEvent(name: "forecastHigh", value: resp2.data.temperatureMax[0])
+			sendEvent(name: "forecastLow", value: resp2.data.temperatureMin[0])
+			sendEvent(name: "moonPhase", value: resp2.data.moonPhase[0])
+			sendEvent(name: "UVHarm", value: resp2.data.daypart[0].uvDescription[0]) 
 			
 			state.dayOrNight = (resp2.data.daypart[0].dayOrNight[0])
-			 log.warn "day/night is $state.dayOrNight"
+	//		 log.warn "day/night is $state.dayOrNight"
 			if(useIcons){
 				if(state.dayOrNight == "D" || state.dayOrNight == null){	
 			state.iconCode1 = (resp2.data.daypart[0].iconCode[0])
@@ -378,8 +380,8 @@ def poll2(){
 				}			
 			state.icon1 = "<img src='" +iconURL1 +state.iconCode1 +".png" +"' width='" +iconWidth1 +"' height='" +iconHeight1 +"'>"
 			state.icon2 = "<img src='" +iconURL1 +state.iconCode2 +".png" +"' width='" +iconWidth1 +"' height='" +iconHeight1 +"'>"
-			sendEvent(name: "currentIcon", value: state.icon1, isStateChange: true) 
-			sendEvent(name: "forecastIcon", value: state.icon2, isStateChange: true) 
+			sendEvent(name: "currentIcon", value: state.icon1) 
+			sendEvent(name: "forecastIcon", value: state.icon2) 
 			} 
         	state.lastPoll = now()     
 
@@ -451,7 +453,12 @@ def updateCheck(){
         	state.Status = "<b>New Version Available (Version: $newVerRaw)</b>"
         	log.warn "** There is a newer version of this driver available  (Version: $newVerRaw) **"
         	log.warn "** $state.UpdateInfo **"
-       		} 
+       		}
+		else if(currentVer > newVer){
+        	state.Status = "You are using a BETA (Version: $state.version)"
+        	log.warn "** <b>You are using a BETA (Version: $state.version)</b>) **"
+        	state.UpdateInfo = "N/A"
+       		} 	
 		else{ 
       		state.Status = "Current"
       		log.info "You are using the current version of this driver"
@@ -463,26 +470,26 @@ def updateCheck(){
     		}
    		if(state.Status == "Current"){
 			state.UpdateInfo = "N/A"
-		    sendEvent(name: "DriverUpdate", value: state.UpdateInfo, isStateChange: true)
-	 	    sendEvent(name: "DriverStatus", value: state.Status, isStateChange: true)
+		    sendEvent(name: "DriverUpdate", value: state.UpdateInfo)
+	 	    sendEvent(name: "DriverStatus", value: state.Status)
 			}
     	else{
-	    	sendEvent(name: "DriverUpdate", value: state.UpdateInfo, isStateChange: true)
-	     	sendEvent(name: "DriverStatus", value: state.Status, isStateChange: true)
+	    	sendEvent(name: "DriverUpdate", value: state.UpdateInfo)
+	     	sendEvent(name: "DriverStatus", value: state.Status)
 	    }   
- 			sendEvent(name: "DriverAuthor", value: state.author, isStateChange: true)
-    		sendEvent(name: "DriverVersion", value: state.version, isStateChange: true)
+ 			sendEvent(name: "DriverAuthor", value: state.author)
+    		sendEvent(name: "DriverVersion", value: state.version)
     
     
     	//	
 }
 
 def setVersion(){
-    state.version = "4.3.0"
+    state.version = "4.5.0"
     state.InternalName = "WUWeatherDriver"
    	state.CobraAppCheck = "customwu.json"
-    sendEvent(name: "DriverAuthor", value: "Cobra", isStateChange: true)
-    sendEvent(name: "DriverVersion", value: state.version, isStateChange: true)
+    sendEvent(name: "DriverAuthor", value: "Cobra")
+    sendEvent(name: "DriverVersion", value: state.version)
     
     
       

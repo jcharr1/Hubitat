@@ -19,6 +19,10 @@
  *  Last Update 24/06/2019
  *
  *
+ *  V4.6.0 - Converted httpGet call to asynchttpGet
+ *  This should prevent hub waiting for the respose from WU
+ *  Randomised the update check routine to reduce load on my update server.
+ *  Auto turn off logging after 30 minutes
  *
  *  V4.5.0 - removed 'isStateChange: true' to reduce database load.
  *  V4.4.0 - Changed debug logging to reduce logging spam
@@ -58,7 +62,7 @@
  */
 
 metadata {
-    definition (name: "Custom WU Driver - New format", namespace: "Cobra", author: "Andrew Parker", importUrl: "https://raw.githubusercontent.com/CobraVmax/Hubitat/master/Drivers/Weather/WeatherUndergroundCustom.groovy") {
+    definition (name: "Custom WU Driver", namespace: "Cobra", author: "Andrew Parker", importUrl: "https://raw.githubusercontent.com/CobraVmax/Hubitat/master/Drivers/Weather/WeatherUndergroundCustom.groovy") {
         capability "Actuator"
         capability "Sensor"
         capability "Temperature Measurement"
@@ -133,7 +137,7 @@ metadata {
         section("Query Inputs"){
             input "apiKey", "text", required: true, title: "API Key"
             input "pollLocation", "text", required: true, title: "Station ID"
-			input "unitFormat", "enum", required: true, title: "Unit Format",  options: ["Imperial", "Metric", "UK Hybrid1", "UK Hybrid2"]
+			input "unitFormat", "enum", required: true, title: "Unit Format",  options: ["Imperial", "Metric", "UK Hybrid"]
 			input "useIcons", "bool", required: false, title: "Use externally hosted icons (Optional)", defaultValue: false
 			if(useIcons){
 			input "iconURL1", "text", required: true, title: "Icon Base URL"
@@ -162,7 +166,7 @@ def updated() {
     
      def changeOver = cutOff
     schedule(changeOver, ResetPollCount)
-
+    if(logSet){runIn(1800, logsOff)}
 }
 
 def ResetPollCount(){
@@ -192,239 +196,167 @@ def poll()
 def formatUnit(){
 	if(unitFormat == "Imperial"){
 		state.unit = "e"
-		log.info "state.unit = $state.unit"
+        if(logSet == true){log.info "state.unit = $state.unit"}
 	}
 	if(unitFormat == "Metric"){
 		state.unit = "m"
-		log.info "state.unit = $state.unit"
+        if(logSet == true){log.info "state.unit = $state.unit"}
 	}
 	if(unitFormat == "UK Hybrid1" || unitFormat == "UK Hybrid2" ){
 		state.unit = "h"
-		log.info "state.unit = $state.unit"
+        if(logSet == true){log.info "state.unit = $state.unit"}
 	}
 	
 	
 }
 def ForcePoll(){
+    if(logSet == true){log.debug "WU: Poll called"}
+    state.NumOfPolls = (state.NumOfPolls) + 1
 	poll1()
 	poll2()
 	
 }
 	
-	
+def pollHandler1(resp, data) {
+	if(resp.getStatus() == 200 || resp.getStatus() == 207) {
+		obs = parseJson(resp.data)
+        if(logSet == true){log.debug "Response Data1 = $obs"}		// log the data returned by WU
+        if(logSet == false){log.info "Further logging disabled"}
+    		def illume = (obs.observations.solarRadiation[0])
+            if(illume){
+            sendEvent(name: "illuminance", value: obs.observations.solarRadiation[0], unit: "lux")
+            sendEvent(name: "solarradiation", value: obs.observations.solarRadiation[0], unit: "W")
+            }
+            if(!illume){
+            sendEvent(name: "illuminance", value: "No Data")
+            sendEvent(name: "solarradiation", value: "No Data")
+            }   
+            sendEvent(name: "pollsSinceReset", value: state.NumOfPolls)
+            sendEvent(name: "stationID", value: obs.observations.stationID[0])
+			sendEvent(name: "stationType", value: obs.observations.softwareType[0])
+			sendEvent(name: "humidity", value: obs.observations.humidity[0])
+            sendEvent(name: "observation_time", value: obs.observations.obsTimeLocal[0])
+            sendEvent(name: "wind_degree", value: obs.observations.winddir[0])			
+			state.latt1 = (obs.observations.lat[0])
+			state.long1 = (obs.observations.lon[0])
+			sendEvent(name: "latitude", value: state.latt1)
+			sendEvent(name: "longitude", value: state.long1)	
+        if(unitFormat == "Imperial"){
+            sendEvent(name: "precip_rate", value: obs.observations.imperial.precipRate[0])
+            sendEvent(name: "precip_today", value: obs.observations.imperial.precipTotal[0])
+			sendEvent(name: "feelsLike", value: obs.observations.imperial.windChill[0], unit: "F")   
+            sendEvent(name: "temperature", value: obs.observations.imperial.temp[0], unit: "F")
+			sendEvent(name: "wind", value: obs.observations.imperial.windSpeed[0], unit: "mph")
+            sendEvent(name: "wind_gust", value: obs.observations.imperial.windGust[0]) 
+			sendEvent(name: "dewpoint", value: obs.observations.imperial.dewpt[0], unit: "F")
+			sendEvent(name: "pressure", value: obs.observations.imperial.pressure[0])
+			sendEvent(name: "elevation", value: obs.observations.imperial.elev[0])
+			}
+		if(unitFormat == "Metric"){
+            sendEvent(name: "precip_rate", value: obs.observations.metric.precipRate[0])
+            sendEvent(name: "precip_today", value: obs.observations.metric.precipTotal[0])
+			sendEvent(name: "feelsLike", value: obs.observations.metric.windChill[0], unit: "C")   
+            sendEvent(name: "temperature", value: obs.observations.metric.temp[0], unit: "C")
+			sendEvent(name: "wind", value: obs.observations.metric.windSpeed[0], unit: "kph")
+            sendEvent(name: "wind_gust", value: obs.observations.metric.windGust[0]) 
+			sendEvent(name: "dewpoint", value: obs.observations.metric.dewpt[0], unit: "C")
+			sendEvent(name: "pressure", value: obs.observations.metric.pressure[0])	
+			sendEvent(name: "elevation", value: obs.observations.metric.elev[0])
+			}
+		if(unitFormat == "UK Hybrid"){
+            sendEvent(name: "precip_rate", value: obs.observations.uk_hybrid.precipRate[0])
+            sendEvent(name: "precip_today", value: obs.observations.uk_hybrid.precipTotal[0])
+			sendEvent(name: "feelsLike", value: obs.observations.uk_hybrid.windChill[0], unit: "C")   
+            sendEvent(name: "temperature", value: obs.observations.uk_hybrid.temp[0], unit: "C")
+			sendEvent(name: "wind", value: obs.observations.uk_hybrid.windSpeed[0], unit: "mph")
+            sendEvent(name: "wind_gust", value: obs.observations.uk_hybrid.windGust[0]) 
+			sendEvent(name: "dewpoint", value: obs.observations.uk_hybrid.dewpt[0], unit: "C")
+			sendEvent(name: "pressure", value: obs.observations.uk_hybrid.pressure[0])
+			sendEvent(name: "elevation", value: obs.observations.uk_hybrid.elev[0])
+			}
+			
+		
+			
+        state.lastPoll = now()
+
+       
+        
+        
+        
+        
+        
+	} else {
+		log.error "WU weather api did not return datafrom poll1"
+	}
+}        	
 	
 	
 def poll1(){
-	
-    formatUnit()
-    state.NumOfPolls = (state.NumOfPolls) + 1
-   
-    if(logSet == true){log.debug "WU: ForcePoll called"}
-    def params1 = [
-		// Current Observation
-       uri: "https://api.weather.com/v2/pws/observations/current?stationId=${pollLocation}&format=json&units=${state.unit}&apiKey=${apiKey}"
-    ]
-
-    try {
-        httpGet(params1) { resp1 ->
-            resp1.headers.each {
-                if(logSet == true){log.debug "Response1: ${it.name} : ${it.value}"}
-        }
-            if(logSet == true){  
+    formatUnit()  
+    def params1 = [uri: "https://api.weather.com/v2/pws/observations/current?stationId=${pollLocation}&format=json&units=${state.unit}&apiKey=${apiKey}"]
+    asynchttpGet("pollHandler1", params1)   
+}
            
-            log.debug "params1: ${params1}"
-            log.debug "response contentType: ${resp1.contentType}"
- 		    log.debug "response data: ${resp1.data}"
-            } 
-            if(logSet == false){ 
-            log.info "Further WU detailed data logging disabled"    
-            }    
- 
-    		def illume = (resp1.data.observations.solarRadiation[0])
-            if(illume){
-            	 sendEvent(name: "illuminance", value: resp1.data.observations.solarRadiation[0], unit: "lux")
-                 sendEvent(name: "solarradiation", value: resp1.data.observations.solarRadiation[0], unit: "W")
-            }
-            if(!illume){
-                 sendEvent(name: "illuminance", value: "No Data")
-            	 sendEvent(name: "solarradiation", value: "No Data")
-            }   
-            sendEvent(name: "pollsSinceReset", value: state.NumOfPolls)
-            sendEvent(name: "stationID", value: resp1.data.observations.stationID[0])
-			sendEvent(name: "stationType", value: resp1.data.observations.softwareType[0])
-			
-			
-			
-			sendEvent(name: "humidity", value: resp1.data.observations.humidity[0])
-            sendEvent(name: "observation_time", value: resp1.data.observations.obsTimeLocal[0])
-            sendEvent(name: "wind_degree", value: resp1.data.observations.winddir[0])			
-			state.latt1 = (resp1.data.observations.lat[0])
-			state.long1 = (resp1.data.observations.lon[0])
-			sendEvent(name: "latitude", value: state.latt1)
-			sendEvent(name: "longitude", value: state.long1)	
-            
-			if(unitFormat == "Imperial"){
-			sendEvent(name: "precip_rate", value: resp1.data.observations.imperial.precipRate[0], unit: "in")
-            sendEvent(name: "precip_today", value: resp1.data.observations.imperial.precipTotal[0], unit: "in")
-			sendEvent(name: "feelsLike", value: resp1.data.observations.imperial.windChill[0], unit: "F")   
-            sendEvent(name: "temperature", value: resp1.data.observations.imperial.temp[0], unit: "F")
-			sendEvent(name: "wind", value: resp1.data.observations.imperial.windSpeed[0], unit: "mph")
-            sendEvent(name: "wind_gust", value: resp1.data.observations.imperial.windGust[0]) 
-			sendEvent(name: "dewpoint", value: resp1.data.observations.imperial.dewpt[0], unit: "F")
-			sendEvent(name: "pressure", value: resp1.data.observations.imperial.pressure[0])
-			sendEvent(name: "elevation", value: resp1.data.observations.imperial.elev[0])
-			}
-			if(unitFormat == "Metric"){
-			sendEvent(name: "precip_rate", value: resp1.data.observations.metric.precipRate[0], unit: "mm")
-            sendEvent(name: "precip_today", value: resp1.data.observations.metric.precipTotal[0], unit: "mm")
-			sendEvent(name: "feelsLike", value: resp1.data.observations.metric.windChill[0], unit: "C")   
-            sendEvent(name: "temperature", value: resp1.data.observations.metric.temp[0], unit: "C")
-			sendEvent(name: "wind", value: resp1.data.observations.metric.windSpeed[0], unit: "kph")
-            sendEvent(name: "wind_gust", value: resp1.data.observations.metric.windGust[0]) 
-			sendEvent(name: "dewpoint", value: resp1.data.observations.metric.dewpt[0], unit: "C")
-			sendEvent(name: "pressure", value: resp1.data.observations.metric.pressure[0])	
-			sendEvent(name: "elevation", value: resp1.data.observations.metric.elev[0])
-			}
-			if(unitFormat == "UK Hybrid1"){
-			sendEvent(name: "precip_rate", value: resp1.data.observations.uk_hybrid.precipRate[0], unit: "in")
-            sendEvent(name: "precip_today", value: resp1.data.observations.uk_hybrid.precipTotal[0], unit: "in")
-			sendEvent(name: "feelsLike", value: resp1.data.observations.uk_hybrid.windChill[0], unit: "C")   
-            sendEvent(name: "temperature", value: resp1.data.observations.uk_hybrid.temp[0], unit: "C")
-			sendEvent(name: "wind", value: resp1.data.observations.uk_hybrid.windSpeed[0], unit: "mph")
-            sendEvent(name: "wind_gust", value: resp1.data.observations.uk_hybrid.windGust[0]) 
-			sendEvent(name: "dewpoint", value: resp1.data.observations.uk_hybrid.dewpt[0], unit: "C")
-			sendEvent(name: "pressure", value: resp1.data.observations.uk_hybrid.pressure[0])
-			sendEvent(name: "elevation", value: resp1.data.observations.uk_hybrid.elev[0])
-			}
-			
-			
-			if(unitFormat == "UK Hybrid2"){
-			sendEvent(name: "precip_rate", value: resp1.data.observations.metric.precipRate[0], unit: "mm")
-            sendEvent(name: "precip_today", value: resp1.data.observations.metric.precipTotal[0], unit: "mm")	
-			sendEvent(name: "feelsLike", value: resp1.data.observations.uk_hybrid.windChill[0], unit: "C")   
-            sendEvent(name: "temperature", value: resp1.data.observations.uk_hybrid.temp[0], unit: "C")
-			sendEvent(name: "wind", value: resp1.data.observations.uk_hybrid.windSpeed[0], unit: "mph")
-            sendEvent(name: "wind_gust", value: resp1.data.observations.uk_hybrid.windGust[0]) 
-			sendEvent(name: "dewpoint", value: resp1.data.observations.uk_hybrid.dewpt[0], unit: "C")
-			sendEvent(name: "pressure", value: resp1.data.observations.uk_hybrid.pressure[0])
-			sendEvent(name: "elevation", value: resp1.data.observations.uk_hybrid.elev[0])
-			}
-			
-			
-			
-			state.lastPoll = now()
-        } 
-       } catch (e) {
-        log.error "something went wrong in Poll1 : $e"
-    }
-    
+
+
+def poll2(){
+    formatUnit()
+    def params2 = [uri: "https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${state.latt1},${state.long1}&units=${state.unit}&language=en-GB&format=json&apiKey=${apiKey}"]
+    asynchttpGet("pollHandler2", params2)
 }
 
- 
-   
-
-/////////////////////////////////////////////////////// POLL 2 /////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-// Forecast Stuff
-def poll2(){
-	 def params2 = [
-	//	Forecast
-	uri: "https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${state.latt1},${state.long1}&units=${state.unit}&language=en-GB&format=json&apiKey=${apiKey}"
-    ]
-	
-    try {
-        httpGet(params2) { resp2 ->
-            resp2.headers.each {
-                if(logSet == true){log.debug "Response2: ${it.name} : ${it.value}"}
-        }
-            if(logSet == true){  
-           
-            log.debug "params2: ${params2}"
-            log.debug "response contentType: ${resp2.contentType}"
- 		    log.debug "response data: ${resp2.data}"
-            } 
-            if(logSet == false){ 
-            log.info "Further WU forecast detailed data logging disabled"    
-            }    
-            sendEvent(name: "precipType", value: resp2.data.daypart[0].precipType[0])
-            sendEvent(name: "chanceOfRain", value: resp2.data.daypart[0].precipChance[0])
-			
-			sendEvent(name: "rainTomorrow", value: resp2.data.daypart[0].qpf[0])
-			
-			sendEvent(name: "currentConditions", value: resp2.data.narrative[0])
-			sendEvent(name: "forecastConditions", value: resp2.data.narrative[1])
-			sendEvent(name: "weather", value: resp2.data.daypart[0].wxPhraseLong[0])
-			sendEvent(name: "wind_dir", value: resp2.data.daypart[0].windDirectionCardinal[0])
-			sendEvent(name: "windPhrase", value: resp2.data.daypart[0].windPhrase[0])
-			sendEvent(name: "windPhraseForecast", value: resp2.data.daypart[0].windPhrase[1])
-
-			
-			sendEvent(name: "forecastHigh", value: resp2.data.temperatureMax[0])
-			sendEvent(name: "forecastLow", value: resp2.data.temperatureMin[0])
-			sendEvent(name: "moonPhase", value: resp2.data.moonPhase[0])
-			sendEvent(name: "UVHarm", value: resp2.data.daypart[0].uvDescription[0]) 
-			
-			state.dayOrNight = (resp2.data.daypart[0].dayOrNight[0])
+def pollHandler2(resp1, data) {
+	if(resp1.getStatus() == 200 || resp1.getStatus() == 207) {
+		obs1 = parseJson(resp1.data)
+        if(logSet == true){log.debug "Response Data2 = $obs1"}		// log the data returned by WU
+            sendEvent(name: "precipType", value: obs1.daypart[0].precipType[0])
+       
+            sendEvent(name: "chanceOfRain", value: obs1.daypart[0].precipChance[0])
+			sendEvent(name: "rainTomorrow", value: obs1.daypart[0].qpf[0])
+			sendEvent(name: "currentConditions", value: obs1.narrative[0])
+			sendEvent(name: "forecastConditions", value: obs1.narrative[1])
+			sendEvent(name: "weather", value: obs1.daypart[0].wxPhraseLong[0])
+			sendEvent(name: "wind_dir", value: obs1.daypart[0].windDirectionCardinal[0])
+			sendEvent(name: "windPhrase", value: obs1.daypart[0].windPhrase[0])
+			sendEvent(name: "windPhraseForecast", value: obs1.daypart[0].windPhrase[1])
+			sendEvent(name: "forecastHigh", value: obs1.temperatureMax[0])
+			sendEvent(name: "forecastLow", value: obs1.temperatureMin[0])
+			sendEvent(name: "moonPhase", value: obs1.moonPhase[0])
+			sendEvent(name: "UVHarm", value: obs1.daypart[0].uvDescription[0]) 
+			state.dayOrNight = (obs1.daypart[0].dayOrNight[0])
 	//		 log.warn "day/night is $state.dayOrNight"
 			if(useIcons){
-				if(state.dayOrNight == "D" || state.dayOrNight == null){	
-			state.iconCode1 = (resp2.data.daypart[0].iconCode[0])
-			state.iconCode2 = (resp2.data.daypart[0].iconCode[2])	
+			if(state.dayOrNight == "D" || state.dayOrNight == null){	
+			state.iconCode1 = (obs1.daypart[0].iconCode[0])
+			state.iconCode2 = (obs1.daypart[0].iconCode[2])	
 				}				
 			if(state.dayOrNight == "N"){	
-			state.iconCode1 = (resp2.data.daypart[0].iconCode[2])
-			state.iconCode2 = (resp2.data.daypart[0].iconCode[3])	
+			state.iconCode1 = (obs1.daypart[0].iconCode[2])
+			state.iconCode2 = (obs1.daypart[0].iconCode[3])	
 				}			
 			state.icon1 = "<img src='" +iconURL1 +state.iconCode1 +".png" +"' width='" +iconWidth1 +"' height='" +iconHeight1 +"'>"
 			state.icon2 = "<img src='" +iconURL1 +state.iconCode2 +".png" +"' width='" +iconWidth1 +"' height='" +iconHeight1 +"'>"
 			sendEvent(name: "currentIcon", value: state.icon1) 
 			sendEvent(name: "forecastIcon", value: state.icon2) 
 			} 
-        	state.lastPoll = now()     
+        	     
 
         } 
         
-    } catch (e) {
-        log.error "something went wrong in Poll 2: $e"
-    }
+   
 
 }
 
-
-
-
-// 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def Report(){
-  def obvTime = Observation_Time.value
-    
-  log.info "$obvTime"  
-    
-}
-
+def logsOff() {
+log.warn "Debug logging disabled..."
+device.updateSetting("logSet", [value: "false", type: "bool"])}
 
 def version(){
     updateCheck()
-   schedule("0 0 9 ? * FRI *", updateCheck)
+   	def random = new Random()
+    Integer randomHour = random.nextInt(18-10) + 10
+    Integer randomDayOfWeek = random.nextInt(7-1) + 1 
+    schedule("0 0 " + randomHour + " ? * " + randomDayOfWeek, updateCheck) 
 }
     
 
@@ -485,7 +417,7 @@ def updateCheck(){
 }
 
 def setVersion(){
-    state.version = "4.5.0"
+    state.version = "4.6.0"
     state.InternalName = "WUWeatherDriver"
    	state.CobraAppCheck = "customwu.json"
     sendEvent(name: "DriverAuthor", value: "Cobra")
