@@ -16,9 +16,10 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *  Last Update 16/04/2019
+ *  Last Update 24/04/2019
  *
- *  
+ *
+ *  V4.3.0 - Added windPhraseForecast attribute
  *  V4.2.0 - Added 'currentIcon' attribute and ability to 'size' icons for dashboard display
  *  V4.1.0 - Made icons optional
  *  V4.0.0 - Reformatted and recoded to allow use with new WU api
@@ -94,6 +95,7 @@ metadata {
         attribute "precip_today", "number"
         attribute "wind", "number"
 		attribute "windPhrase", "string"
+		attribute "windPhraseForecast", "string"
         attribute "UV", "number"
        	attribute "UVHarm", "string"
         attribute "pollsSinceReset", "number"
@@ -119,6 +121,7 @@ metadata {
         attribute "DriverVersion", "string"
         attribute "DriverStatus", "string"
 		attribute "DriverUpdate", "string"
+		attribute "humidity", "string"
 		
      
         
@@ -127,7 +130,7 @@ metadata {
         section("Query Inputs"){
             input "apiKey", "text", required: true, title: "API Key"
             input "pollLocation", "text", required: true, title: "Station ID"
-			input "unitFormat", "enum", required: true, title: "Unit Format",  options: ["Imperial", "Metric", "UK Hybrid"]
+			input "unitFormat", "enum", required: true, title: "Unit Format",  options: ["Imperial", "Metric", "UK Hybrid1", "UK Hybrid2"]
 			input "useIcons", "bool", required: false, title: "Use externally hosted icons (Optional)", defaultValue: false
 			if(useIcons){
 			input "iconURL1", "text", required: true, title: "Icon Base URL"
@@ -192,7 +195,7 @@ def formatUnit(){
 		state.unit = "m"
 		log.info "state.unit = $state.unit"
 	}
-	if(unitFormat == "UK Hybrid"){
+	if(unitFormat == "UK Hybrid1" || unitFormat == "UK Hybrid2" ){
 		state.unit = "h"
 		log.info "state.unit = $state.unit"
 	}
@@ -241,17 +244,19 @@ def poll1(){
                  sendEvent(name: "solarradiation", value: resp1.data.observations.solarRadiation[0], unit: "W", isStateChange: true)
             }
             if(!illume){
-                 sendEvent(name: "illuminance", value: "This station does not send Illumination data", isStateChange: true)
-            	 sendEvent(name: "solarradiation", value: "This station does not send Solar Radiation data", isStateChange: true)
+                 sendEvent(name: "illuminance", value: "No Data", isStateChange: true)
+            	 sendEvent(name: "solarradiation", value: "No Data", isStateChange: true)
             }   
             sendEvent(name: "pollsSinceReset", value: state.NumOfPolls)
             sendEvent(name: "stationID", value: resp1.data.observations.stationID[0], isStateChange: true)
 			sendEvent(name: "stationType", value: resp1.data.observations.softwareType[0], isStateChange: true)
 			
 			
+			
+			sendEvent(name: "humidity", value: resp1.data.observations.humidity[0], isStateChange: true)
             sendEvent(name: "observation_time", value: resp1.data.observations.obsTimeLocal[0], isStateChange: true)
             sendEvent(name: "wind_degree", value: resp1.data.observations.winddir[0], isStateChange: true)			
-				state.latt1 = (resp1.data.observations.lat[0])
+			state.latt1 = (resp1.data.observations.lat[0])
 			state.long1 = (resp1.data.observations.lon[0])
 			sendEvent(name: "latitude", value: state.latt1 ,isStateChange: true)
 			sendEvent(name: "longitude", value: state.long1,isStateChange: true)	
@@ -278,7 +283,7 @@ def poll1(){
 			sendEvent(name: "pressure", value: resp1.data.observations.metric.pressure[0],isStateChange: true)	
 			sendEvent(name: "elevation", value: resp1.data.observations.metric.elev[0], isStateChange: true)
 			}
-			if(unitFormat == "UK Hybrid"){
+			if(unitFormat == "UK Hybrid1"){
 			sendEvent(name: "precip_rate", value: resp1.data.observations.uk_hybrid.precipRate[0], unit: "in", isStateChange: true)
             sendEvent(name: "precip_today", value: resp1.data.observations.uk_hybrid.precipTotal[0], unit: "in", isStateChange: true)
 			sendEvent(name: "feelsLike", value: resp1.data.observations.uk_hybrid.windChill[0], unit: "C", isStateChange: true)   
@@ -289,6 +294,22 @@ def poll1(){
 			sendEvent(name: "pressure", value: resp1.data.observations.uk_hybrid.pressure[0],isStateChange: true)
 			sendEvent(name: "elevation", value: resp1.data.observations.uk_hybrid.elev[0], isStateChange: true)
 			}
+			
+			
+			if(unitFormat == "UK Hybrid2"){
+			sendEvent(name: "precip_rate", value: resp1.data.observations.metric.precipRate[0], unit: "mm", isStateChange: true)
+            sendEvent(name: "precip_today", value: resp1.data.observations.metric.precipTotal[0], unit: "mm", isStateChange: true)	
+			sendEvent(name: "feelsLike", value: resp1.data.observations.uk_hybrid.windChill[0], unit: "C", isStateChange: true)   
+            sendEvent(name: "temperature", value: resp1.data.observations.uk_hybrid.temp[0], unit: "C", isStateChange: true)
+			sendEvent(name: "wind", value: resp1.data.observations.uk_hybrid.windSpeed[0], unit: "mph", isStateChange: true)
+            sendEvent(name: "wind_gust", value: resp1.data.observations.uk_hybrid.windGust[0], isStateChange: true) 
+			sendEvent(name: "dewpoint", value: resp1.data.observations.uk_hybrid.dewpt[0], unit: "C", isStateChange: true)
+			sendEvent(name: "pressure", value: resp1.data.observations.uk_hybrid.pressure[0],isStateChange: true)
+			sendEvent(name: "elevation", value: resp1.data.observations.uk_hybrid.elev[0], isStateChange: true)
+			}
+			
+			
+			
 			state.lastPoll = now()
         } 
        } catch (e) {
@@ -336,6 +357,7 @@ def poll2(){
 			sendEvent(name: "weather", value: resp2.data.daypart[0].wxPhraseLong[0], isStateChange: true)
 			sendEvent(name: "wind_dir", value: resp2.data.daypart[0].windDirectionCardinal[0], isStateChange: true)
 			sendEvent(name: "windPhrase", value: resp2.data.daypart[0].windPhrase[0], isStateChange: true)
+			sendEvent(name: "windPhraseForecast", value: resp2.data.daypart[0].windPhrase[1], isStateChange: true)
 
 			
 			sendEvent(name: "forecastHigh", value: resp2.data.temperatureMax[0], isStateChange: true)
@@ -344,12 +366,16 @@ def poll2(){
 			sendEvent(name: "UVHarm", value: resp2.data.daypart[0].uvDescription[0], isStateChange: true) 
 			
 			state.dayOrNight = (resp2.data.daypart[0].dayOrNight[0])
-	//		 log.warn "day/night is $state.dayOrNight"
+			 log.warn "day/night is $state.dayOrNight"
 			if(useIcons){
+				if(state.dayOrNight == "D" || state.dayOrNight == null){	
 			state.iconCode1 = (resp2.data.daypart[0].iconCode[0])
 			state.iconCode2 = (resp2.data.daypart[0].iconCode[2])	
-							
-			
+				}				
+			if(state.dayOrNight == "N"){	
+			state.iconCode1 = (resp2.data.daypart[0].iconCode[2])
+			state.iconCode2 = (resp2.data.daypart[0].iconCode[3])	
+				}			
 			state.icon1 = "<img src='" +iconURL1 +state.iconCode1 +".png" +"' width='" +iconWidth1 +"' height='" +iconHeight1 +"'>"
 			state.icon2 = "<img src='" +iconURL1 +state.iconCode2 +".png" +"' width='" +iconWidth1 +"' height='" +iconHeight1 +"'>"
 			sendEvent(name: "currentIcon", value: state.icon1, isStateChange: true) 
@@ -452,7 +478,7 @@ def updateCheck(){
 }
 
 def setVersion(){
-    state.version = "4.2.0"
+    state.version = "4.3.0"
     state.InternalName = "WUWeatherDriver"
    	state.CobraAppCheck = "customwu.json"
     sendEvent(name: "DriverAuthor", value: "Cobra", isStateChange: true)
