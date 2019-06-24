@@ -471,15 +471,15 @@ def updateCheck(){
     		}
    		if(state.Status == "Current"){
 			state.UpdateInfo = "N/A"
-		    sendEvent(name: "DriverUpdate", value: state.UpdateInfo, isStateChange: true)
-	 	    sendEvent(name: "DriverStatus", value: state.Status, isStateChange: true)
+		    sendEvent(name: "DriverUpdate", value: state.UpdateInfo)
+	 	    sendEvent(name: "DriverStatus", value: state.Status)
 			}
     	else{
-	    	sendEvent(name: "DriverUpdate", value: state.UpdateInfo, isStateChange: true)
-	     	sendEvent(name: "DriverStatus", value: state.Status, isStateChange: true)
+	    	sendEvent(name: "DriverUpdate", value: state.UpdateInfo)
+	     	sendEvent(name: "DriverStatus", value: state.Status)
 	    }   
- 			sendEvent(name: "DriverAuthor", value: state.author, isStateChange: true)
-    		sendEvent(name: "DriverVersion", value: state.version, isStateChange: true)
+ 			sendEvent(name: "DriverAuthor", value: state.author)
+    		sendEvent(name: "DriverVersion", value: state.version)
     
     
     	//	
@@ -489,8 +489,8 @@ def setVersion(){
     state.version = "4.5.0"
     state.InternalName = "WUWeatherDriver"
    	state.CobraAppCheck = "customwu.json"
-    sendEvent(name: "DriverAuthor", value: "Cobra", isStateChange: true)
-    sendEvent(name: "DriverVersion", value: state.version, isStateChange: true)
+    sendEvent(name: "DriverAuthor", value: "Cobra")
+    sendEvent(name: "DriverVersion", value: state.version)
     
     
       
