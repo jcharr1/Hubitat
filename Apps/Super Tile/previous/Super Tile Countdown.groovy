@@ -27,11 +27,11 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 03/06/2019
+ *  Last Update: 14/06/2019
  *
  *  Changes:
  * 
- * 
+ *  V1.2.0 - Added option for minutes countdown timer as well as seconds
  *  V1.1.0 - Added countdown to date formatting & Display license notification text on install
  *  V1.0.1 - debug
  *  V1.0.0 - POC
@@ -68,7 +68,7 @@ def mainPage() {
 dynamicPage(name: "mainPage") {   
 preCheck()
 	
-	section() {input "countType", "enum", title: "Select Timer Type", required:true, defaultValue: "NONE", options: ["Countdown to a Date/Time", "Countdown Seconds"] , submitOnChange: true}
+	section() {input "countType", "enum", title: "Select Timer Type", required:true, defaultValue: "NONE", options: ["Countdown to a Date/Time", "Countdown Seconds", "Countdown Minutes"] , submitOnChange: true}
 	
 	if(countType == "Countdown Seconds"){
 	
@@ -90,6 +90,24 @@ if(over){input "vDevice2", "device.SuperTileDisplayDevice", title: "Superimpose 
 	}
 	
 
+		if(countType == "Countdown Minutes"){
+	
+section (){input "vDevice", "device.SuperTileCountdownDisplay", title: "Virtual Countdown Display Device", required: true}	
+section (){input "vDeviceCount", "number", title: "How many minutes to count down?", required: true}
+	
+section(){href "start", title:"Configure Start Trigger", description: ""}
+section(){href "stop", title:"Configure Stop Trigger", description: ""}
+section(){
+input "over", "bool", title: "Superimpose this countdown over another Super Tile?", required: true, defaultValue: false, submitOnChange: true
+if(over){input "vDevice2", "device.SuperTileDisplayDevice", title: "Superimpose over this Super Tile (When countdown active)", required: false}
+}
+	section (){
+	input "switchIt", "bool", title: "Also control a switch with this countdown (Turns on for the duration of the count)", required: true, defaultValue: false, submitOnChange: true
+		if(switchIt){input "switch10", "capability.switch", title: "Switch to control", required: true}}	
+		
+		section() {input "logLevel", "enum", title: "Set Logging Level", required:true, defaultValue: "NONE", options: ["NONE", "INFO", "DEBUG & INFO"]}
+		section() {label title: "Enter a name for this automation", required: false}
+	}
 	
 
 	
@@ -132,7 +150,7 @@ logCheck()
 subscribeNow()}
 def subscribeNow(){
 unsubscribe()
-if(countType == "Countdown Seconds"){ 
+if(countType == "Countdown Seconds" || countType == "Countdown Minutes"){ 
 subscribe(location, "mode", modeEventHandler)
 subscribe(location, "hsmStatus", hsmStatusHandler)
 if(lock1){subscribe(lock1, "lock", lock1Handler)}
@@ -402,9 +420,18 @@ state.modeNow = evt.value
 	if(state.triggerMode1 != null){
 if(state.triggerMode1.contains(location.mode)){ 
 LOGDEBUG("Mode is now $state.modeNow") 
+    
+    if(countType == "Countdown Seconds"){
 	vDevice.setCountDownSeconds(vDeviceCount)
 vDevice.startTimer()
-	if(switch10){switch10.on()}
+        if(switch10){switch10.on()}
+    }
+     if(countType == "Countdown Minutes"){
+	vDevice.setCountDownMinutes(vDeviceCount)
+vDevice.startTimerMinutes()
+        if(switch10){switch10.on()}
+    }
+    
 }}}
 	if(state.allow2 == true){
 		if(state.triggerMode2 != null){
@@ -435,9 +462,16 @@ vDevice.stopTimer()
 	if(state.allow1 == true){
 if(state.ofHSM.contains(state.reqStartHSM)){ 
 LOGDEBUG( "HSM changed to $state.ofHSM so starting timer")
+	 if(countType == "Countdown Seconds"){
 	vDevice.setCountDownSeconds(vDeviceCount)
 vDevice.startTimer()
-if(switch10){switch10.on()}
+        if(switch10){switch10.on()}
+    }
+     if(countType == "Countdown Minutes"){
+	vDevice.setCountDownMinutes(vDeviceCount)
+vDevice.startTimerMinutes()
+        if(switch10){switch10.on()}
+    }
 }}
 
 }
@@ -448,15 +482,29 @@ state.lock1 = evt.value
 state.lockMode1 = lockMode1
 if(state.lockMode1 == true && state.lock1 == "locked"){
 LOGINFO("<b>Starting timer...</b> ")
+	 if(countType == "Countdown Seconds"){
 	vDevice.setCountDownSeconds(vDeviceCount)
 vDevice.startTimer()
-if(switch10){switch10.on()}
+        if(switch10){switch10.on()}
+    }
+     if(countType == "Countdown Minutes"){
+	vDevice.setCountDownMinutes(vDeviceCount)
+vDevice.startTimerMinutes()
+        if(switch10){switch10.on()}
+    }
 }	
 if(state.lockMode1 == false && state.lock1 == "unlocked"){
 LOGINFO("<b>Starting timer...</b> ")
+	 if(countType == "Countdown Seconds"){
 	vDevice.setCountDownSeconds(vDeviceCount)
 vDevice.startTimer()
-if(switch10){switch10.on()}
+        if(switch10){switch10.on()}
+    }
+     if(countType == "Countdown Minutes"){
+	vDevice.setCountDownMinutes(vDeviceCount)
+vDevice.startTimerMinutes()
+        if(switch10){switch10.on()}
+    }
 }}}
 	
 def lock2Handler(evt){
@@ -478,15 +526,29 @@ state.contact1 = evt.value
 state.contactMode1 = contactMode1
 if(state.contactMode1 == true && state.contact1 == "open"){
 LOGINFO("<b<Starting timer...</b> ")
+	 if(countType == "Countdown Seconds"){
 	vDevice.setCountDownSeconds(vDeviceCount)
 vDevice.startTimer()
-if(switch10){switch10.on()}
+        if(switch10){switch10.on()}
+    }
+     if(countType == "Countdown Minutes"){
+	vDevice.setCountDownMinutes(vDeviceCount)
+vDevice.startTimerMinutes()
+        if(switch10){switch10.on()}
+    }
 }
 if(state.contactMode1 == false && state.contact1 == "closed"){
 LOGINFO("<b<Starting timer...</b> ")
+	 if(countType == "Countdown Seconds"){
 	vDevice.setCountDownSeconds(vDeviceCount)
 vDevice.startTimer()
-if(switch10){switch10.on()}
+        if(switch10){switch10.on()}
+    }
+     if(countType == "Countdown Minutes"){
+	vDevice.setCountDownMinutes(vDeviceCount)
+vDevice.startTimerMinutes()
+        if(switch10){switch10.on()}
+    }
 }}}
 	
 def contact2Handler(evt){
@@ -508,15 +570,29 @@ state.switch1 = evt.value
 state.switchMode1 = switchMode1
 if(state.switchMode1 == true && state.switch1 == "on"){
 LOGINFO("<b<Starting timer...</b> ")
+	 if(countType == "Countdown Seconds"){
 	vDevice.setCountDownSeconds(vDeviceCount)
 vDevice.startTimer()
-if(switch10){switch10.on()}
+        if(switch10){switch10.on()}
+    }
+     if(countType == "Countdown Minutes"){
+	vDevice.setCountDownMinutes(vDeviceCount)
+vDevice.startTimerMinutes()
+        if(switch10){switch10.on()}
+    }
 }
 if(state.switchMode1 == false && state.switch1 == "off"){
 LOGINFO("<b<Starting timer...</b> ")
+	 if(countType == "Countdown Seconds"){
 	vDevice.setCountDownSeconds(vDeviceCount)
 vDevice.startTimer()
-if(switch10){switch10.on()}
+        if(switch10){switch10.on()}
+    }
+     if(countType == "Countdown Minutes"){
+	vDevice.setCountDownMinutes(vDeviceCount)
+vDevice.startTimerMinutes()
+        if(switch10){switch10.on()}
+    }
 }}}
 	
 def switch2Handler(evt){
@@ -538,15 +614,29 @@ state.motion1 = evt.value
 state.motionMode1 = motionMode1
 if(state.motionMode1 == true && state.motion1 == "active"){
 LOGINFO("<b>Starting timer... </b>")
+	 if(countType == "Countdown Seconds"){
 	vDevice.setCountDownSeconds(vDeviceCount)
 vDevice.startTimer()
-if(switch10){switch10.on()}
+        if(switch10){switch10.on()}
+    }
+     if(countType == "Countdown Minutes"){
+	vDevice.setCountDownMinutes(vDeviceCount)
+vDevice.startTimerMinutes()
+        if(switch10){switch10.on()}
+    }
 }
 if(state.motionMode1 == false && state.motion1 == "inactive"){
 LOGINFO("<b<Starting timer...</b> ")
+	 if(countType == "Countdown Seconds"){
 	vDevice.setCountDownSeconds(vDeviceCount)
 vDevice.startTimer()
-if(switch10){switch10.on()}
+        if(switch10){switch10.on()}
+    }
+     if(countType == "Countdown Minutes"){
+	vDevice.setCountDownMinutes(vDeviceCount)
+vDevice.startTimerMinutes()
+        if(switch10){switch10.on()}
+    }
 }}}
 	
 def motion2Handler(evt){
@@ -787,7 +877,7 @@ def setDefaults(){
    }
     
 def setVersion(){
-		state.version = "1.1.0"	 
+		state.version = "1.2.0"	 
 		state.InternalName = "SuperTileCountdownChild"
     	state.ExternalName = "Super Tile Time Child"
 		state.preCheckMessage = "This app was designed to use a special Virtual Display device  to display time or a countdown on a dashboard tile"

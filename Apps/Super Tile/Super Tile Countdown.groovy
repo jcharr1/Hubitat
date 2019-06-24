@@ -27,11 +27,12 @@
  *-------------------------------------------------------------------------------------------------------------------
  *
  *
- *  Last Update: 14/06/2019
+ *  Last Update: 24/06/2019
  *
  *  Changes:
- * 
- *  V1.2.0 - Added option for minutes countdown timer as well as seconds
+ *
+ *  V1.3.0 - debug HSM trigger
+ *  V1.2.0 - Added option for minutes countdown timer as well as seconds (Last minute will change to seconds)
  *  V1.1.0 - Added countdown to date formatting & Display license notification text on install
  *  V1.0.1 - debug
  *  V1.0.0 - POC
@@ -453,6 +454,8 @@ state.reqStopHSM = stopHSM
 state.reqStartHSM = startHSM
 LOGDEBUG( "hsmStatusHandler - evt = $evt.value")
 	
+    if(state.reqStartHSM != null){
+    
 	if(state.allow2 == true){
 if(state.ofHSM.contains(state.reqStopHSM)){
 LOGDEBUG( "HSM changed to $state.ofHSM so stopping timer")
@@ -473,7 +476,7 @@ vDevice.startTimerMinutes()
         if(switch10){switch10.on()}
     }
 }}
-
+    }
 }
 	
 def lock1Handler(evt){
@@ -877,7 +880,7 @@ def setDefaults(){
    }
     
 def setVersion(){
-		state.version = "1.2.0"	 
+		state.version = "1.3.0"	 
 		state.InternalName = "SuperTileCountdownChild"
     	state.ExternalName = "Super Tile Time Child"
 		state.preCheckMessage = "This app was designed to use a special Virtual Display device  to display time or a countdown on a dashboard tile"
