@@ -202,7 +202,7 @@ def formatUnit(){
 		state.unit = "m"
         if(logSet == true){log.info "state.unit = $state.unit"}
 	}
-	if(unitFormat == "UK Hybrid1" || unitFormat == "UK Hybrid2" ){
+	if(unitFormat == "UK Hybrid"){
 		state.unit = "h"
         if(logSet == true){log.info "state.unit = $state.unit"}
 	}
@@ -286,14 +286,18 @@ def pollHandler1(resp, data) {
         
         
 	} else {
-		log.error "WU weather api did not return datafrom poll1"
+        def res = resp.getStatus()
+		log.error "WU weather api did not return data from poll1 - $res"
 	}
 }        	
 	
 	
 def poll1(){
     formatUnit()  
-    def params1 = [uri: "https://api.weather.com/v2/pws/observations/current?stationId=${pollLocation}&format=json&units=${state.unit}&apiKey=${apiKey}"]
+    def params1 = [
+        uri: "https://api.weather.com/v2/pws/observations/current?stationId=${pollLocation}&format=json&units=${state.unit}&apiKey=${apiKey}"
+     //   uri: "https://api.weather.com/v2/pws/observations/current?stationId=IDURHAM16&format=json&units=${state.unit}&apiKey=${apiKey}"
+    ]
     asynchttpGet("pollHandler1", params1)   
 }
            
