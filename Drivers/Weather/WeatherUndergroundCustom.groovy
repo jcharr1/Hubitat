@@ -267,30 +267,50 @@ def pollHandler1(resp, data) {
 		}
 		if(unitFormat == "Metric") {
 			sendEvent(name: "precip_rate", value: obs.observations.metric.precipRate[0])
+			sendEvent(name: "PrecipRate", value: "🌧" + obs.observations.metric.precipRate[0] + 'mm/hr')
 			sendEvent(name: "precip_today", value: obs.observations.metric.precipTotal[0])
+			sendEvent(name: "PrecipAmount", value: "🌧" + obs.observations.metric.precipTotal[0] + 'mm')
 			sendEvent(name: "feelsLike", value: obs.observations.metric.windChill[0], unit: "℃")   
+			def feelsLikeTemp = obs.observations.metric.heatIndex[0]
+			def feelsLikeEmoji = "☀️"
+			if(obs.observations.metric.temp[0] <= 16) {
+				feelsLikeTemp = obs.observations.metric.windChill[0]
+				feelsLikeEmoji = "❄️"
+			}
+			sendEvent(name: "FeelsLike", value: "Feels Like" + feelsLikeEmoji + feelsLikeTemp + "℃")
 			sendEvent(name: "temperature", value: obs.observations.metric.temp[0], unit: "℃")
-			sendEvent(name: "TempAndHumidity", value: "🌡" + obs.observations.imperial.temp[0] + "℃🌡 " + obs.observations.humidity[0] + "%💧")
+			sendEvent(name: "TempAndHumidity", value: obs.observations.metric.temp[0] + "℃🌡 " + obs.observations.humidity[0] + "%💧")
 			sendEvent(name: "wind", value: obs.observations.metric.windSpeed[0], unit: "kph")
 			def compassDir = degreesToCompass(obs.observations.winddir[0])
-			sendEvent(name: "WindAndDir", value: "💨" + compassDir + " " + obs.observations.metric.windSpeed[0] + "|" + obs.observations.imperial.windGust[0] + "kph")
+			sendEvent(name: "WindAndDir", value: "💨" + compassDir + " " + obs.observations.metric.windSpeed[0] + "|" + obs.observations.metric.windGust[0] + "kph")
 			sendEvent(name: "wind_gust", value: obs.observations.metric.windGust[0]) 
 			sendEvent(name: "dewpoint", value: obs.observations.metric.dewpt[0], unit: "℃")
 			sendEvent(name: "pressure", value: obs.observations.metric.pressure[0])	
+			sendEvent(name: "Barometer", value: "🧭" + obs.observations.metric.pressure[0] + "hPa")
 			sendEvent(name: "elevation", value: obs.observations.metric.elev[0])
 		}
 		if(unitFormat == "UK Hybrid") {
 			sendEvent(name: "precip_rate", value: obs.observations.uk_hybrid.precipRate[0])
+			sendEvent(name: "PrecipRate", value: "🌧" + obs.observations.uk_hybrid.precipRate[0] + 'mm/hr')
 			sendEvent(name: "precip_today", value: obs.observations.uk_hybrid.precipTotal[0])
+			sendEvent(name: "PrecipAmount", value: "🌧" + obs.observations.uk_hybrid.precipTotal[0] + 'mm')
 			sendEvent(name: "feelsLike", value: obs.observations.uk_hybrid.windChill[0], unit: "℃")   
+			def feelsLikeTemp = obs.observations.uk_hybrid.heatIndex[0]
+			def feelsLikeEmoji = "☀️"
+			if(obs.observations.uk_hybrid.temp[0] <= 16) {
+				feelsLikeTemp = obs.observations.uk_hybrid.windChill[0]
+				feelsLikeEmoji = "❄️"
+			}
+			sendEvent(name: "FeelsLike", value: "Feels Like" + feelsLikeEmoji + feelsLikeTemp + "℃")
 			sendEvent(name: "temperature", value: obs.observations.uk_hybrid.temp[0], unit: "℃")
-			sendEvent(name: "TempAndHumidity", value: "🌡" + obs.observations.imperial.temp[0] + "℃🌡 " + obs.observations.humidity[0] + "%💧")
+			sendEvent(name: "TempAndHumidity", value: obs.observations.uk_hybrid.temp[0] + "℃🌡 " + obs.observations.humidity[0] + "%💧")
 			sendEvent(name: "wind", value: obs.observations.uk_hybrid.windSpeed[0], unit: "mph")
 			def compassDir = degreesToCompass(obs.observations.winddir[0])
-			sendEvent(name: "WindAndDir", value: "💨" + compassDir + " " + obs.observations.uk_hybrid.windSpeed[0] + "|" + obs.observations.imperial.windGust[0] + "mph")
+			sendEvent(name: "WindAndDir", value: "💨" + compassDir + " " + obs.observations.uk_hybrid.windSpeed[0] + "|" + obs.observations.uk_hybrid.windGust[0] + "mph")
 			sendEvent(name: "wind_gust", value: obs.observations.uk_hybrid.windGust[0]) 
 			sendEvent(name: "dewpoint", value: obs.observations.uk_hybrid.dewpt[0], unit: "C")
 			sendEvent(name: "pressure", value: obs.observations.uk_hybrid.pressure[0])
+			sendEvent(name: "Barometer", value: "🧭" + obs.observations.uk_hybrid.pressure[0] + "hPa")
 			sendEvent(name: "elevation", value: obs.observations.uk_hybrid.elev[0])
 		}
 			
