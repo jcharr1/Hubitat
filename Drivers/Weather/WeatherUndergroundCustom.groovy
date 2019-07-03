@@ -130,7 +130,9 @@ metadata {
 		// Dashboard tile friendly attributes
 		attribute "WindAndDir", "string" // from PWS
 		attribute "PrecipAmount", "string"
-		attribute "PrecipChance", "string"	
+		attribute "PrecipRate", "string"
+		attribute "PrecipChance", "string"
+		attribute "TempAndHumidity", "string"
 	}
 	
 	preferences() {
@@ -146,7 +148,7 @@ metadata {
 			}			
 			input "pollIntervalLimit", "number", title: "Poll Interval Limit:", required: true, defaultValue: 1
 			input "autoPoll", "bool", required: false, title: "Enable Auto Poll"
-			input "pollInterval", "enum", title: "Auto Poll Interval:", required: false, defaultValue: "5 Minutes", options: ["5 Minutes", "10 Minutes", "15 Minutes", "30 Minutes", "1 Hour", "3 Hours"]
+			input "pollInterval", "enum", title: "Auto Poll Interval:", required: false, defaultValue: "5 Minutes", options: ["1 Minute", "5 Minutes", "10 Minutes", "15 Minutes", "30 Minutes", "1 Hour", "3 Hours"]
 			input "logSet", "bool", title: "Enable Logging", required: true, defaultValue: false
 			input "cutOff", "time", title: "New Day Starts", required: true	
 		}
@@ -230,7 +232,7 @@ def pollHandler1(resp, data) {
 		sendEvent(name: "pollsSinceReset", value: state.NumOfPolls)
 		sendEvent(name: "stationID", value: obs.observations.stationID[0])
 		sendEvent(name: "stationType", value: obs.observations.softwareType[0])
-		sendEvent(name: "humidity", value: obs.observations.humidity[0])
+		sendEvent(name: "humidity", value: obs.observations.humidity[0], unit: "%")
 		sendEvent(name: "observation_time", value: obs.observations.obsTimeLocal[0])
 		sendEvent(name: "wind_degree", value: obs.observations.winddir[0])			
 		state.latt1 = (obs.observations.lat[0])
@@ -239,39 +241,43 @@ def pollHandler1(resp, data) {
 		sendEvent(name: "longitude", value: state.long1)	
 		if(unitFormat == "Imperial") {
 			sendEvent(name: "precip_rate", value: obs.observations.imperial.precipRate[0])
+			sendEvent(name: "PrecipRate", value: obs.observations.imperial.precipRate[0] + "in/hr")
 			sendEvent(name: "precip_today", value: obs.observations.imperial.precipTotal[0])
 			sendEvent(name: "PrecipAmount", value: obs.observations.imperial.precipTotal[0] + '"')
-			sendEvent(name: "feelsLike", value: obs.observations.imperial.windChill[0], unit: "F")   
-			sendEvent(name: "temperature", value: obs.observations.imperial.temp[0], unit: "F")
+			sendEvent(name: "feelsLike", value: obs.observations.imperial.windChill[0], unit: "℉")   
+			sendEvent(name: "temperature", value: obs.observations.imperial.temp[0], unit: "℉")
+			sendEvent(name: "TempAndHumidity", value: obs.observations.imperial.temp[0] + "℉ " + obs.observations.humidity[0] + "%")
 			sendEvent(name: "wind", value: obs.observations.imperial.windSpeed[0], unit: "mph")
 			def compassDir = degreesToCompass(obs.observations.winddir[0])
-			sendEvent(name: "WindAndDir", value: compassDir + " " + obs.observations.imperial.windSpeed[0] + "mph")
+			sendEvent(name: "WindAndDir", value: compassDir + " " + obs.observations.imperial.windSpeed[0] + "|" + obs.observations.imperial.windGust[0] + "mph")
 			sendEvent(name: "wind_gust", value: obs.observations.imperial.windGust[0]) 
-			sendEvent(name: "dewpoint", value: obs.observations.imperial.dewpt[0], unit: "F")
+			sendEvent(name: "dewpoint", value: obs.observations.imperial.dewpt[0], unit: "℉")
 			sendEvent(name: "pressure", value: obs.observations.imperial.pressure[0])
 			sendEvent(name: "elevation", value: obs.observations.imperial.elev[0])
 		}
 		if(unitFormat == "Metric") {
 			sendEvent(name: "precip_rate", value: obs.observations.metric.precipRate[0])
 			sendEvent(name: "precip_today", value: obs.observations.metric.precipTotal[0])
-			sendEvent(name: "feelsLike", value: obs.observations.metric.windChill[0], unit: "C")   
-			sendEvent(name: "temperature", value: obs.observations.metric.temp[0], unit: "C")
+			sendEvent(name: "feelsLike", value: obs.observations.metric.windChill[0], unit: "℃")   
+			sendEvent(name: "temperature", value: obs.observations.metric.temp[0], unit: "℃")
+			sendEvent(name: "TempAndHumidity", value: obs.observations.imperial.temp[0] + "℃ " + obs.observations.humidity[0] + "%")
 			sendEvent(name: "wind", value: obs.observations.metric.windSpeed[0], unit: "kph")
 			def compassDir = degreesToCompass(obs.observations.winddir[0])
-			sendEvent(name: "WindAndDir", value: compassDir + " " + obs.observations.metric.windSpeed[0] + "kph")
+			sendEvent(name: "WindAndDir", value: compassDir + " " + obs.observations.metric.windSpeed[0] + "|" + obs.observations.imperial.windGust[0] + "kph")
 			sendEvent(name: "wind_gust", value: obs.observations.metric.windGust[0]) 
-			sendEvent(name: "dewpoint", value: obs.observations.metric.dewpt[0], unit: "C")
+			sendEvent(name: "dewpoint", value: obs.observations.metric.dewpt[0], unit: "℃")
 			sendEvent(name: "pressure", value: obs.observations.metric.pressure[0])	
 			sendEvent(name: "elevation", value: obs.observations.metric.elev[0])
 		}
 		if(unitFormat == "UK Hybrid") {
 			sendEvent(name: "precip_rate", value: obs.observations.uk_hybrid.precipRate[0])
 			sendEvent(name: "precip_today", value: obs.observations.uk_hybrid.precipTotal[0])
-			sendEvent(name: "feelsLike", value: obs.observations.uk_hybrid.windChill[0], unit: "C")   
-			sendEvent(name: "temperature", value: obs.observations.uk_hybrid.temp[0], unit: "C")
+			sendEvent(name: "feelsLike", value: obs.observations.uk_hybrid.windChill[0], unit: "℃")   
+			sendEvent(name: "temperature", value: obs.observations.uk_hybrid.temp[0], unit: "℃")
+			sendEvent(name: "TempAndHumidity", value: obs.observations.imperial.temp[0] + "℃ " + obs.observations.humidity[0] + "%")
 			sendEvent(name: "wind", value: obs.observations.uk_hybrid.windSpeed[0], unit: "mph")
 			def compassDir = degreesToCompass(obs.observations.winddir[0])
-			sendEvent(name: "WindAndDir", value: compassDir + " " + obs.observations.uk_hybrid.windSpeed[0] + "mph")
+			sendEvent(name: "WindAndDir", value: compassDir + " " + obs.observations.uk_hybrid.windSpeed[0] + "|" + obs.observations.imperial.windGust[0] + "mph")
 			sendEvent(name: "wind_gust", value: obs.observations.uk_hybrid.windGust[0]) 
 			sendEvent(name: "dewpoint", value: obs.observations.uk_hybrid.dewpt[0], unit: "C")
 			sendEvent(name: "pressure", value: obs.observations.uk_hybrid.pressure[0])
@@ -312,7 +318,7 @@ def pollHandler2(resp1, data) {
 		if(!precip_chance) {
 			precip_chance = 0
 		}
-		sendEvent(name: "PrecipChance", value: precip_chance + "%")
+		sendEvent(name: "PrecipChance", value: precip_chance + "% Chance")
 		sendEvent(name: "rainTomorrow", value: obs1.daypart[0].qpf[0])
 		sendEvent(name: "currentConditions", value: obs1.narrative[0])
 		sendEvent(name: "forecastConditions", value: obs1.narrative[1])
