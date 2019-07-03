@@ -16,9 +16,9 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *  Last Update 24/06/2019
+ *  Last Update 02/07/2019
  *
- *
+ *  V4.6.1 - Added more tile friendly attributes - @jcharr1 02/07/2019
  *  V4.6.0 - Converted httpGet call to asynchttpGet
  *  This should prevent hub waiting for the respose from WU
  *  Randomised the update check routine to reduce load on my update server.
@@ -62,7 +62,7 @@
  */
 
 metadata {
-    definition (name: "Custom WU Driver", namespace: "Cobra", author: "Andrew Parker", importUrl: "https://raw.githubusercontent.com/CobraVmax/Hubitat/master/Drivers/Weather/WeatherUndergroundCustom.groovy") {
+    definition (name: "Custom WU Driver", namespace: "Cobra", author: "Andrew Parker", importUrl: "https://raw.githubusercontent.com/jcharr1/Hubitat/master/Drivers/Weather/WeatherUndergroundCustom.groovy") {
         capability "Actuator"
         capability "Sensor"
         capability "Temperature Measurement"
@@ -130,6 +130,10 @@ metadata {
 		attribute "DriverUpdate", "string"
 		attribute "humidity", "string"
 		
+		// Tile friendly attributes
+        attribute "WindAndDir", "string"
+        attribute "Precip", "string"
+        attribute "Rain%", "string"
      
         
     }
@@ -244,9 +248,12 @@ def pollHandler1(resp, data) {
         if(unitFormat == "Imperial"){
             sendEvent(name: "precip_rate", value: obs.observations.imperial.precipRate[0])
             sendEvent(name: "precip_today", value: obs.observations.imperial.precipTotal[0])
+            sendEvent(name: "Precip", value: obs.observations.imperial.precipTotal[0] + '"')
 			sendEvent(name: "feelsLike", value: obs.observations.imperial.windChill[0], unit: "F")   
             sendEvent(name: "temperature", value: obs.observations.imperial.temp[0], unit: "F")
 			sendEvent(name: "wind", value: obs.observations.imperial.windSpeed[0], unit: "mph")
+            def compassDir = degreesToCompass(obs.observations.winddir[0])
+            sendEvent(name: "WindAndDir", value: compassDir + " " + obs.observations.imperial.windSpeed[0] + "mph")
             sendEvent(name: "wind_gust", value: obs.observations.imperial.windGust[0]) 
 			sendEvent(name: "dewpoint", value: obs.observations.imperial.dewpt[0], unit: "F")
 			sendEvent(name: "pressure", value: obs.observations.imperial.pressure[0])
@@ -316,6 +323,11 @@ def pollHandler2(resp1, data) {
             sendEvent(name: "precipType", value: obs1.daypart[0].precipType[0])
        
             sendEvent(name: "chanceOfRain", value: obs1.daypart[0].precipChance[0])
+            def rain_chance = obs1.daypart[0].precipChance[0]
+            if(!rain_chance) {
+                rain_chance = 0
+            }
+            sendEvent(name: "Rain%", value: rain_chance + "%")
 			sendEvent(name: "rainTomorrow", value: obs1.daypart[0].qpf[0])
 			sendEvent(name: "currentConditions", value: obs1.narrative[0])
 			sendEvent(name: "forecastConditions", value: obs1.narrative[1])
@@ -429,4 +441,14 @@ def setVersion(){
     
     
       
+}
+
+def degreesToCompass(direction) {
+    def compass = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW","N"]
+    def arrows = ["⬇︎","⬋","⬅︎","⬉","⬆︎","⬈","➡︎","⬊"]
+    int index = Math.round((direction % 360) / 22.5)
+    int arrowIndex = Math.round((direction % 360) / 45)
+    log.info "index = " + index
+    log.info "arrowIndex = " + arrowIndex
+    return arrows[arrowIndex] + compass[index]
 }
