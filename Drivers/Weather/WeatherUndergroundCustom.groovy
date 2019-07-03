@@ -18,7 +18,7 @@
  *
  *  Last Update 03/07/2019
  *
- *  V4.6.1 - Added more dashboard tile friendly attributes. Added 1 minute auto poll option - @jcharr1 03/07/2019
+ *  V4.6.1 - Added more dashboard tile friendly attributes. Added 1 minute auto poll option - @jcharr42 03/07/2019
  *  V4.6.0 - Converted httpGet call to asynchttpGet
  *  This should prevent hub waiting for the respose from WU
  *  Randomised the update check routine to reduce load on my update server.
@@ -416,7 +416,7 @@ def sendEventsForUnitFormat(unitFormat, formatObs) {
 	}
 	
 	sendEvent(name: "precip_rate", value: formatObs.precipRate[0])
-	sendEvent(name: "PrecipRate", value: "🌧" + formatObs.precipRate[0] + precipFormat + '"/hr')
+	sendEvent(name: "PrecipRate", value: "🌧" + formatObs.precipRate[0] + precipFormat + '/hr')
 	sendEvent(name: "precip_today", value: formatObs.precipTotal[0])
 	sendEvent(name: "PrecipAmount", value: "🌧" + formatObs.precipTotal[0] + precipFormat)
 	sendEvent(name: "feelsLike", value: formatObs.windChill[0], unit: tempFormat)  
