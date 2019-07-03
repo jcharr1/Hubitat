@@ -381,7 +381,7 @@ def updateCheck() {
 }
 
 def setVersion() {
-	state.version = "4.6.0"
+	state.version = "4.6.1"
 	state.InternalName = "WUWeatherDriver"
 	state.CobraAppCheck = "customwu.json"
 	sendEvent(name: "DriverAuthor", value: "Cobra")
