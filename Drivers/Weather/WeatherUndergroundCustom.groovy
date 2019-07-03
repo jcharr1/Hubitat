@@ -253,7 +253,7 @@ def pollHandler1(resp, data) {
 				feelsLikeTemp = obs.observations.imperial.windChill[0]
 				feelsLikeEmoji = "❄️"
 			}
-			sendEvent(name: "FeelsLike", value: feelsLikeEmoji + feelsLikeTemp + "℉")
+			sendEvent(name: "FeelsLike", value: "Feels Like" + feelsLikeEmoji + feelsLikeTemp + "℉")
 			sendEvent(name: "temperature", value: obs.observations.imperial.temp[0], unit: "℉")
 			sendEvent(name: "TempAndHumidity", value: obs.observations.imperial.temp[0] + "℉🌡 " + obs.observations.humidity[0] + "%💧")
 			sendEvent(name: "wind", value: obs.observations.imperial.windSpeed[0], unit: "mph")
