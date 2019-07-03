@@ -128,9 +128,9 @@ metadata {
 		attribute "humidity", "string"
 		
 		// Dashboard tile friendly attributes
-		attribute "WindAndDir", "string"
+		attribute "WindAndDir", "string" // from PWS
 		attribute "Precip", "string"
-		attribute "Percip%", "string"	
+		attribute "Precip%", "string"	
 	}
 	
 	preferences() {
@@ -308,11 +308,11 @@ def pollHandler2(resp1, data) {
 		sendEvent(name: "precipType", value: obs1.daypart[0].precipType[0])
    
 		sendEvent(name: "chanceOfRain", value: obs1.daypart[0].precipChance[0])
-		def percip_chance = obs1.daypart[0].precipChance[0]
-		if(!percip_chance) {
-			percip_chance = 0
+		def precip_chance = obs1.daypart[0].precipChance[0]
+		if(!precip_chance) {
+			precip_chance = 0
 		}
-		sendEvent(name: "Percip%", value: percip_chance + "%")
+		sendEvent(name: "Precip%", value: precip_chance + "%")
 		sendEvent(name: "rainTomorrow", value: obs1.daypart[0].qpf[0])
 		sendEvent(name: "currentConditions", value: obs1.narrative[0])
 		sendEvent(name: "forecastConditions", value: obs1.narrative[1])
