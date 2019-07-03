@@ -419,7 +419,7 @@ def setVersion() {
 
 def degreesToCompass(degrees) {
 	def compass = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW","N"]
-	def arrows = ["⬇︎","⬋","⬅︎","⬉","⬆︎","⬈","➡︎","⬊"]
+	def arrows = ["⬇︎","⬋","⬅︎","⬉","⬆︎","⬈","➡︎","⬊","⬇︎"]
 	int index = Math.round((degrees % 360) / 22.5)
 	int arrowIndex = Math.round((degrees % 360) / 45)
 	log.debug "index = " + index
