@@ -129,8 +129,8 @@ metadata {
 		
 		// Dashboard tile friendly attributes
 		attribute "WindAndDir", "string" // from PWS
-		attribute "Precip", "string"
-		attribute "Precip%", "string"	
+		attribute "PrecipAmount", "string"
+		attribute "PrecipChance", "string"	
 	}
 	
 	preferences() {
@@ -240,7 +240,7 @@ def pollHandler1(resp, data) {
 		if(unitFormat == "Imperial") {
 			sendEvent(name: "precip_rate", value: obs.observations.imperial.precipRate[0])
 			sendEvent(name: "precip_today", value: obs.observations.imperial.precipTotal[0])
-			sendEvent(name: "Precip", value: obs.observations.imperial.precipTotal[0] + '"')
+			sendEvent(name: "PrecipAmount", value: obs.observations.imperial.precipTotal[0] + '"')
 			sendEvent(name: "feelsLike", value: obs.observations.imperial.windChill[0], unit: "F")   
 			sendEvent(name: "temperature", value: obs.observations.imperial.temp[0], unit: "F")
 			sendEvent(name: "wind", value: obs.observations.imperial.windSpeed[0], unit: "mph")
@@ -312,7 +312,7 @@ def pollHandler2(resp1, data) {
 		if(!precip_chance) {
 			precip_chance = 0
 		}
-		sendEvent(name: "Precip%", value: precip_chance + "%")
+		sendEvent(name: "PrecipChance", value: precip_chance + "%")
 		sendEvent(name: "rainTomorrow", value: obs1.daypart[0].qpf[0])
 		sendEvent(name: "currentConditions", value: obs1.narrative[0])
 		sendEvent(name: "forecastConditions", value: obs1.narrative[1])
