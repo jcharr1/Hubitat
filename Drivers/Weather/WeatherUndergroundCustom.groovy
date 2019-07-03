@@ -134,6 +134,7 @@ metadata {
 		attribute "PrecipChance", "string"
 		attribute "TempAndHumidity", "string"
 		attribute "FeelsLike", "string"
+		attribute "Barometer", "string"
 	}
 	
 	preferences() {
@@ -261,6 +262,7 @@ def pollHandler1(resp, data) {
 			sendEvent(name: "wind_gust", value: obs.observations.imperial.windGust[0]) 
 			sendEvent(name: "dewpoint", value: obs.observations.imperial.dewpt[0], unit: "℉")
 			sendEvent(name: "pressure", value: obs.observations.imperial.pressure[0])
+			sendEvent(name: "Barometer", value: "🧭" + obs.observations.imperial.pressure[0] + "inHg")
 			sendEvent(name: "elevation", value: obs.observations.imperial.elev[0])
 		}
 		if(unitFormat == "Metric") {
