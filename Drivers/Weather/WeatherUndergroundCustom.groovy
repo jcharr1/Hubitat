@@ -147,7 +147,7 @@ metadata {
 			}			
 			input "pollIntervalLimit", "number", title: "Poll Interval Limit:", required: true, defaultValue: 1
 			input "autoPoll", "bool", required: false, title: "Enable Auto Poll"
-			input "pollInterval", "enum", title: "Auto Poll Interval:", required: false, defaultValue: "5 Minutes", options: ["1 Minute", "5 Minutes", "10 Minutes", "15 Minutes", "30 Minutes", "1 Hour", "3 Hours"]
+			input "pollInterval", "enum", title: "Auto Poll Interval:", required: false, defaultValue: "5 Minutes", options: ["3 Minutes", "5 Minutes", "10 Minutes", "15 Minutes", "30 Minutes", "1 Hour", "3 Hours"]
 			input "logSet", "bool", title: "Enable Logging", required: true, defaultValue: false
 			input "cutOff", "time", title: "New Day Starts", required: true	
 		}
@@ -160,8 +160,13 @@ def updated() {
 	state.NumOfPolls = 0
 	ForcePoll()
 	def pollIntervalCmd = (settings?.pollInterval ?: "5 Minutes").replace(" ", "")
-	if(autoPoll)
-		"runEvery${pollIntervalCmd}"(pollSchedule)
+	if(autoPoll) {
+		if(pollIntervalCmd.startsWith("3")) {
+			schedule("0 */3 * ? * *", pollSchedule)	
+		} else {
+			"runEvery${pollIntervalCmd}"(pollSchedule)
+		}
+	}
 	def changeOver = cutOff
 	schedule(changeOver, ResetPollCount)
 	if(logSet) {runIn(1800, logsOff)}
