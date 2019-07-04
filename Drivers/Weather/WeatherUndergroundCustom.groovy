@@ -122,9 +122,6 @@ metadata {
 		attribute "latitude", "string"
 		attribute "longitude", "string"
  		attribute "DriverAuthor", "string"
-		attribute "DriverVersion", "string"
-		attribute "DriverStatus", "string"
-		attribute "DriverUpdate", "string"
 		attribute "humidity", "string"
 		
 		// Dashboard tile friendly attributes
@@ -159,9 +156,7 @@ metadata {
 
 def updated() {
 	log.debug "updated called"
-	updateCheck()
 	unschedule()
-	version()
 	state.NumOfPolls = 0
 	ForcePoll()
 	def pollIntervalCmd = (settings?.pollInterval ?: "5 Minutes").replace(" ", "")
@@ -317,75 +312,6 @@ def pollHandler2(resp1, data) {
 def logsOff() {
 	log.warn "Debug logging disabled..."
 	device.updateSetting("logSet", [value: "false", type: "bool"])
-}
-
-def version() {
-	updateCheck()
-   	def random = new Random()
-	Integer randomHour = random.nextInt(18-10) + 10
-	Integer randomDayOfWeek = random.nextInt(7-1) + 1 
-	schedule("0 0 " + randomHour + " ? * " + randomDayOfWeek, updateCheck) 
-}
-
-def updateCheck() {
-	setVersion()
-	def paramsUD = [uri: "http://update.hubitat.uk/json/${state.CobraAppCheck}"] 
-	try {
-		httpGet(paramsUD) { respUD ->
-			//  log.warn " Version Checking - Response Data: ${respUD.data}"// Troubleshooting Debug Code **********************
-			def copyrightRead = (respUD.data.copyright)
-			state.Copyright = copyrightRead
-			def newVerRaw = (respUD.data.versions.Driver.(state.InternalName))
-			//log.warn "$state.InternalName = $newVerRaw"
-			def newVer = newVerRaw.replace(".", "")
-			//log.warn "$state.InternalName = $newVer"
-			def currentVer = state.version.replace(".", "")
-			state.UpdateInfo = "Updated: "+state.newUpdateDate + " - "+(respUD.data.versions.UpdateInfo.Driver.(state.InternalName))
-			state.author = (respUD.data.author)
-			state.newUpdateDate = (respUD.data.Comment)
-
-			if(newVer == "NLS") {
-				state.Status = "<b>** This driver is no longer supported by $state.author  **</b>"	   
-				log.warn "** This driver is no longer supported by $state.author **"	  
-			}		   
-			else if(currentVer < newVer) {
-				state.Status = "<b>New Version Available (Version: $newVerRaw)</b>"
-				log.warn "** There is a newer version of this driver available  (Version: $newVerRaw) **"
-				log.warn "** $state.UpdateInfo **"
-			}
-			else if(currentVer > newVer) {
-				state.Status = "You are using a BETA (Version: $state.version)"
-				log.warn "** <b>You are using a BETA (Version: $state.version)</b>) **"
-				state.UpdateInfo = "N/A"
-			} 	
-			else { 
-				state.Status = "Current"
-				log.info "You are using the current version of this driver"
-			}
-		}
-	} 
-	catch (e) {
-		log.error "Something went wrong: CHECK THE JSON FILE AND IT'S URI -  $e"
-	}
-	if(state.Status == "Current") {
-		state.UpdateInfo = "N/A"
-		sendEvent(name: "DriverUpdate", value: state.UpdateInfo)
-		sendEvent(name: "DriverStatus", value: state.Status)
-	}
-	else{
-		sendEvent(name: "DriverUpdate", value: state.UpdateInfo)
-		sendEvent(name: "DriverStatus", value: state.Status)
-	}   
-	sendEvent(name: "DriverAuthor", value: state.author)
-	sendEvent(name: "DriverVersion", value: state.version)
-}
-
-def setVersion() {
-	state.version = "4.6.1"
-	state.InternalName = "WUWeatherDriver"
-	state.CobraAppCheck = "customwu.json"
-	sendEvent(name: "DriverAuthor", value: "Cobra")
-	sendEvent(name: "DriverVersion", value: state.version)  
 }
 
 def degreesToCompass(degrees) {
