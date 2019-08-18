@@ -16,8 +16,9 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *  Last Update 03/07/2019
+ *  Last Update: 18/08/2019
  *
+ *  V4.6.2 - Some fixes for units. Support for tempHandler to work with Notifier app - @jcharr42 18/08/2019
  *  V4.6.1 - Added more dashboard tile friendly attributes. Added 1 minute auto poll option - @jcharr42 03/07/2019
  *  V4.6.0 - Converted httpGet call to asynchttpGet
  *  This should prevent hub waiting for the respose from WU
@@ -332,15 +333,20 @@ def degreesToCompass(degrees) {
 	return(arrows[arrowIndex] + compass[index])
 }
 
+void temperatureEvent(Integer tempVal, String tempUnit) {
+	//log.debug "Entered temperatureEvent"
+	sendEvent(name:'temperature', value: tempVal, unit: tempUnit, descriptionText: "PWS Temperature is ${tempVal}${tempUnit}", displayed: true, isStateChange: true)
+}
+
 def sendEventsForUnitFormat(unitFormat, formatObs) {
-	def tempFormat = "℉"
+	def tempFormat = "F"
 	def speedFormat = "mph"
 	def pressureFormat = "inHg"
 	def windChillTemp = 61
 	def precipFormat = '"'
 	
 	if(unitFormat == "UK Hybrid" || unitFormat == "Metric") {
-		tempFormat = "℃"
+		tempFormat = "C"
 		pressureFormat = "hPa"
 		windChillTemp = 16
 		precipFormat = "mm"
@@ -351,7 +357,7 @@ def sendEventsForUnitFormat(unitFormat, formatObs) {
 	
 	sendEvent(name: "precip_rate", value: formatObs.precipRate[0])
 	sendEvent(name: "PrecipRate", value: "🌧" + formatObs.precipRate[0] + precipFormat + '/hr')
-	sendEvent(name: "precip_today", value: formatObs.precipTotal[0])
+	sendEvent(name: "precip_today", value: formatObs.precipTotal[0], unit: precipFormat)
 	sendEvent(name: "PrecipAmount", value: "🌧" + formatObs.precipTotal[0] + precipFormat)
 	sendEvent(name: "feelsLike", value: formatObs.windChill[0], unit: tempFormat)  
 	def feelsLikeTemp = formatObs.heatIndex[0]
@@ -360,15 +366,16 @@ def sendEventsForUnitFormat(unitFormat, formatObs) {
 		feelsLikeTemp = formatObs.windChill[0]
 		feelsLikeEmoji = "❄️"
 	}
-	sendEvent(name: "FeelsLike", value: "Feels Like" + feelsLikeEmoji + feelsLikeTemp + tempFormat)
-	sendEvent(name: "temperature", value: formatObs.temp[0], unit: tempFormat)
-	sendEvent(name: "TempAndHumidity", value: formatObs.temp[0] + tempFormat + "🌡 " + obs.observations.humidity[0] + "%💧")
+	sendEvent(name: "FeelsLike", value: "Feels Like" + feelsLikeEmoji + feelsLikeTemp + "°" + tempFormat)
+	//sendEvent(name: "temperature", value: formatObs.temp[0], unit: tempFormat)
+	temperatureEvent(formatObs.temp[0], tempFormat)
+	sendEvent(name: "TempAndHumidity", value: formatObs.temp[0] + "°" + tempFormat + "🌡 " + obs.observations.humidity[0] + "%💧")
 	sendEvent(name: "wind", value: formatObs.windSpeed[0], unit: speedFormat)
 	def compassDir = degreesToCompass(obs.observations.winddir[0])
 	sendEvent(name: "WindAndDir", value: "💨" + compassDir + " " + formatObs.windSpeed[0] + "|" + formatObs.windGust[0] + speedFormat)
-	sendEvent(name: "wind_gust", value: formatObs.windGust[0]) 
+	sendEvent(name: "wind_gust", value: formatObs.windGust[0], unit: speedFormat) 
 	sendEvent(name: "dewpoint", value: formatObs.dewpt[0], unit: tempFormat)
-	sendEvent(name: "pressure", value: formatObs.pressure[0])
+	sendEvent(name: "pressure", value: formatObs.pressure[0], unit: pressureFormat)
 	sendEvent(name: "Barometer", value: "🧭" + formatObs.pressure[0] + pressureFormat)
 	sendEvent(name: "elevation", value: formatObs.elev[0])
 }
