@@ -18,7 +18,7 @@
  *
  *  Last Update: 18/08/2019
  *
- *  V4.6.2 - Some fixes for units. Support for tempHandler to work with Notifier app - @jcharr42 18/08/2019
+ *  V4.6.2 - Some fixes for units. Support for tempHandler to work with Notifications app - @jcharr42 18/08/2019
  *  V4.6.1 - Added more dashboard tile friendly attributes. Added 1 minute auto poll option - @jcharr42 03/07/2019
  *  V4.6.0 - Converted httpGet call to asynchttpGet
  *  This should prevent hub waiting for the respose from WU
