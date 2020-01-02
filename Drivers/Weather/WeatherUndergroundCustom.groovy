@@ -1,7 +1,7 @@
 /**
  * Custom WU Driver
  *
- *  Copyright 2019 Andrew Parker
+ *  Copyright 2019 Andrew Parker II
  *
  *  This driver was originally written by @mattw01 and I thank him for that!
  *  Heavily modified by myself: @Cobra with lots of help from @Scottma61 ( @Matthew )
